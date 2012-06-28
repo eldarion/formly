@@ -29,6 +29,58 @@ class Survey(models.Model):
     def get_absolute_url(self):
         return reverse("formly_dt_survey_detail", kwargs={"pk": self.pk})
     
+    def duplicate(self): # @@@ This could like use with some refactoring
+        survey = Survey.objects.get(pk=self.pk)
+        survey.pk = None
+        survey.save()
+        survey.pages.all().delete()
+        
+        pages = {}
+        page_targets = []
+        choice_targets = []
+        
+        for page in Survey.objects.get(pk=self.pk).pages.all():
+            orig_page_target = page.target
+            orig_page_pk = page.pk
+            page.pk = None
+            page.survey = survey
+            page.target = None
+            page.save()
+            pages[orig_page_pk] = page
+            if orig_page_target:
+                page_targets.append({
+                    "page": page,
+                    "orig_target_pk": orig_page_target.pk
+                })
+            for field in Page.objects.get(pk=orig_page_pk).fields.all():
+                orig_field_pk = field.pk
+                field.pk = None
+                field.survey = survey
+                field.page = page
+                field.save()
+                for choice in Field.objects.get(pk=orig_field_pk).choices.all():
+                    orig_target = choice.target
+                    choice.pk = None
+                    choice.field = field
+                    choice.target = None
+                    choice.save()
+                    if orig_target:
+                        choice_targets.append({
+                            "choice": choice,
+                            "orig_target_pk": orig_target.pk
+                        })
+        
+        for page_target in page_targets:
+            page = page_target["page"]
+            page.target = pages[page_target["orig_target_pk"]]
+            page.save()
+        for choice_target in choice_targets:
+            choice = choice_target["choice"]
+            choice.target = pages[choice_target["orig_target_pk"]]
+            choice.save()
+        
+        return survey
+    
     @property
     def fields(self):
         for page in self.pages.all():

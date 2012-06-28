@@ -53,6 +53,14 @@ def survey_publish(request, pk):
 
 @require_POST
 @login_required
+def survey_duplicate(request, pk):
+    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    duped = survey.duplicate()
+    return redirect("formly_dt_survey_detail", pk=duped.pk)
+
+
+@require_POST
+@login_required
 def page_create(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
     page = survey.pages.create()

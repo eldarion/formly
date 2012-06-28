@@ -182,18 +182,26 @@ class Field(models.Model):
     
     def form_field(self):
         choices = [(x.pk, x.label) for x in self.choices.all()]
-        if self.field_type == Field.TEXT_FIELD:
-            return forms.CharField(label=self.label, help_text=self.help_text, required=self.required)
-        elif self.field_type == Field.TEXT_AREA:
-            return forms.CharField(label=self.label, help_text=self.help_text, required=self.required, widget=forms.Textarea())
+        kwargs = dict(label=self.label, help_text=self.help_text, required=self.required)
+        field_class = forms.CharField
+        
+        if self.field_type == Field.TEXT_AREA:
+            kwargs.update({"widget": forms.Textarea()})
         elif self.field_type == Field.RADIO_CHOICES:
-            return forms.ChoiceField(label=self.label, help_text=self.help_text, required=self.required, widget=forms.RadioSelect(), choices=choices)
+            field_class = forms.ChaiceField
+            kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
-            return forms.DateField(label=self.label, help_text=self.help_text, required=self.required)
+            field_class = forms.DateField
         elif self.field_type == Field.SELECT_FIELD:
-            return forms.ChoiceField(label=self.label, help_text=self.help_text, required=self.required, widget=forms.Select(), choices=choices)
+            field_class = forms.ChoiceField
+            kwargs.update({"widget": forms.Select(), "choices": choices})
         elif self.field_type == Field.CHECKBOX_FIELD:
-            return forms.MultipleChoiceField(label=self.label, help_text=self.help_text, required=self.required, widget=forms.CheckboxInput(), choices=choices)
+            field_class = forms.MultipleChoiceField
+            kwargs.update({"widget": forms.CheckboxInput(), "choices": choices})
+        elif self.field_type == Field.MEDIA_FIELD:
+            field_class = forms.FileField
+        
+        return field_class(**kwargs)
 
 
 
@@ -220,7 +228,8 @@ class FieldResult(models.Model):
     page = models.ForeignKey(Page, related_name="results") # Denorm
     result = models.ForeignKey(SurveyResult, related_name="results")
     question = models.ForeignKey(Field, related_name="results")
-    answer = JSONField()
+    upload = models.FileField(upload_to="formly/", blank=True)
+    answer = JSONField(blank=True) # @@@ I think this should be something different than a string
     
     def answer_display(self):
         if self.question.needs_choices:

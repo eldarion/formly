@@ -1,3 +1,7 @@
+import json
+
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 
@@ -41,6 +45,22 @@ def survey_create(request):
     return render(request, "formly/design/survey_form.html", {
         "form": form,
     })
+
+
+@require_POST
+@login_required
+def survey_change_name(request, pk):
+    """
+    Works well with:
+      http://www.appelsiini.net/projects/jeditable
+    """
+    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    survey.name = request.POST.get("name")
+    survey.save()
+    return HttpResponse(json.dumps({
+        "status": "OK",
+        "name": survey.name
+    }), mimetype="application/json")
 
 
 @require_POST

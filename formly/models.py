@@ -134,6 +134,7 @@ class Field(models.Model):
     SELECT_FIELD = 4
     CHECKBOX_FIELD = 5
     MEDIA_FIELD = 6
+    BOOLEAN_FIELD = 7
     
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "text field"),
@@ -142,7 +143,8 @@ class Field(models.Model):
         (SELECT_FIELD, "dropdown field"),
         (CHECKBOX_FIELD, "checkbox field (can select multiple answers"),
         (DATE_FIELD, "date field"),
-        (MEDIA_FIELD, "media upload field")
+        (MEDIA_FIELD, "media upload field"),
+        (BOOLEAN_FIELD, "boolean field")
     ]
     
     survey = models.ForeignKey(Survey, related_name="fields") # Denorm
@@ -198,6 +200,8 @@ class Field(models.Model):
         elif self.field_type == Field.CHECKBOX_FIELD:
             field_class = forms.MultipleChoiceField
             kwargs.update({"widget": forms.CheckboxInput(), "choices": choices})
+        elif self.field_type == Field.BOOLEAN_FIELD:
+            field_class = forms.BooleanField
         elif self.field_type == Field.MEDIA_FIELD:
             field_class = forms.FileField
         

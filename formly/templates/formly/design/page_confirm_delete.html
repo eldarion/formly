@@ -1,0 +1,24 @@
+{% extends "site_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+
+<header class="jumbotron subhead" id="overview">
+  <h1>Delete Page</h1>
+  <p class="lead">Please confirm the deletion of this page.</p>
+</header>
+
+<form action="{% url formly_dt_page_delete pk=page.pk %}" method="post">
+    <legend>{{ page }}</legend>
+    {% csrf_token %}
+     <fieldset>
+        {{ form|as_bootstrap }}
+    </fieldset>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a class="btn" href="{{ page.get_absolute_url }}">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "formly/design/survey_edit_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+
+<header class="jumbotron subhead" id="overview">
+  <h1>Modify Choice</h1>
+  <p class="lead">Configure the choice.</p>
+</header>
+
+<form action="{% url formly_dt_choice_update pk=choice.pk %}" method="post">
+    {% csrf_token %}
+    <fieldset>
+        {{ form|as_bootstrap }}
+    </fieldset>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn" href="{{ choice.field.page.get_absolute_url }}">Cancel</a>
+    </div>
+</form>
+
+{% endblock %}

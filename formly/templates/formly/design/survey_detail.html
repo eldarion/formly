@@ -1,0 +1,38 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}{{ survey }}{% endblock %}
+
+{% block body %}
+    <ul class="breadcrumb">
+        <li>
+            <a href="{% url formly_dt_survey_list %}">Surveys</a> <span class="divider">/</span>
+        </li>
+        <li class="active">{{ survey.name }}</li>
+    </ul>
+
+    <header class="jumbotron subhead" id="overview">
+      <h1 class="survey-name-edit">{{ survey.name }}</h1>
+      <p class="lead">Created at {{ survey.created }} and on {{ survey.updated }} it was updated. This survey has {{ survey.pages.count }} page{{ survey.pages.count|pluralize }}.</p>
+      {% if survey.published %}<p class="lead">published {{ survey.published }}</p>{% endif %}
+    </header>
+    
+    <a class="btn" href="{{ survey.first_page.get_absolute_url }}">Edit</a>
+    <a class="btn btn-danger" href="{% url formly_dt_survey_delete pk=survey.pk %}">Delete</a>
+{% endblock %}
+
+
+{% block extra_body %}
+    <script type="text/javascript" src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $(".survey-name-edit").editable("{% url formly_dt_survey_change_name pk=survey.pk %}", {
+                name: "name",
+                indicator: "Saving...",
+                tooltip: "Click to edit...",
+                callback : function(value, settings) {
+                    $(this).text($.parseJSON(value).name);
+                }
+            });
+        });
+    </script>
+{% endblock %}

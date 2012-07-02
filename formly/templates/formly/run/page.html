@@ -1,0 +1,27 @@
+{% extends "site_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+
+<header class="jumbotron subhead" id="overview">
+  <h1>Take the Survey</h1>
+  <p class="lead">Please complete this survey.</p>
+</header>
+
+{% if form.is_multipart %}
+<form action="" method="post" enctype="multipart/form-data">
+{% else %}
+<form action="" method="post">
+{% endif %}
+    <legend>{{ page }}</legend>
+    {% csrf_token %}
+    <fieldset>
+        {{ form|as_bootstrap }}
+    </fieldset>
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+</form>
+
+{% endblock %}

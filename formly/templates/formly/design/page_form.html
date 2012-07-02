@@ -1,0 +1,82 @@
+{% extends "formly/design/survey_edit_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+    <header class="jumbotron subhead" id="overview">
+      <h1>Modify Page</h1>
+      <p class="lead">Edit the details for this page.</p>
+    </header>
+
+<form action="{% url formly_dt_page_update pk=page.pk %}" method="post" class="well">
+    {% csrf_token %}
+    <fieldset>
+        {{ form|as_bootstrap }}
+    </fieldset>
+    <div class="form-actions">
+        <input type="hidden" name="action" value="page_update" />
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn" href="{{ page.survey.get_absolute_url }}">Cancel</a>
+        <a class="btn btn-danger" href="{% url formly_dt_page_delete pk=page.pk %}">Delete</a>
+    </div>
+</form>
+
+<h3>Fields</h3>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Label</th>
+            <th>Type</th>
+            <th>Help</th>
+            <th>Required</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for field in page.fields.all %}
+        <tr>
+            <td>
+                <a href="{% url formly_dt_field_update pk=field.pk %}">
+                    {{ field.label }}
+                </a>
+            </td>
+            <td>
+                {{ field.get_field_type_display }}
+                {% if field.choices.exists %}
+                    {% for choice in field.choices.all %}
+                    <span class="label label-inverse">{{ choice }}</span> 
+                    {% endfor %}
+                {% endif %}
+            </td>
+            <td>{{ field.help_text }}</td>
+            <td>{{ field.required }}</td>
+            <td>
+                <a class="btn btn-danger btn-mini" href="{% url formly_dt_field_delete pk=field.pk %}">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a class="btn btn-success btn-mini" data-toggle="modal" href="#new-field" ><i class="icon-plus icon-white"></i> Add Field</a>
+
+<div class="modal hide" id="new-field">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">×</button>
+        <h3>Add Field</h3>
+    </div>
+    <form action="{% url formly_dt_page_update pk=page.pk %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="field_add" />
+        <div class="modal-body">
+            {{ field_form|as_bootstrap }}
+        </div>
+        <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a href="#" class="btn" data-dismiss="modal">Close</a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

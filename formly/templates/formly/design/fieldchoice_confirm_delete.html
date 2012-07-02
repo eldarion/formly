@@ -1,0 +1,18 @@
+{% extends "site_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+
+<h2>Confirm Delete of Choice</h2>
+
+{{ fieldchoice }}
+
+<form action="{% url formly_dt_choice_delete pk=fieldchoice.pk %}" method="post">
+    {% csrf_token %}
+    {{ form|as_bootstrap }}
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a class="btn" href="{{ fieldchoice.field.get_absolute_url }}">Cancel</a>
+</form>
+
+{% endblock %}

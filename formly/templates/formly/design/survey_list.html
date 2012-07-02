@@ -1,0 +1,112 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}Surveys{% endblock %}
+
+{% block body %}
+    <header class="jumbotron subhead" id="overview">
+      <h1>Surveys</h1>
+      <p class="lead">View and manage existing surveys.</p>
+      
+      <p>
+        <a class="btn btn-success btn-mini" href="{% url formly_dt_survey_create %}">
+            <i class="icon-plus icon-white"></i> create survey
+        </a>
+      </p>
+    </header>
+    
+    <h3>Published Surveys</h3>
+    
+    {% if published_surveys.exists %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Page Count</th>
+                    <th>Result Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for survey in published_surveys %}
+                    <tr>
+                        <td>
+                            <a class="btn btn-mini btn-info" href="{% url formly_rt_take_survey pk=survey.pk %}">
+                                Take Survey
+                            </a>
+                            <a class="btn btn-mini btn-warn" href="{% url formly_survey_results pk=survey.pk %}">
+                                View Results
+                            </a>
+                        </td>
+                        <td>{{ survey.name }}</td>
+                        <td>{{ survey.created }}</td>
+                        <td>{{ survey.updated }}</td>
+                        <td>{{ survey.pages.count }}</td>
+                        <td>{{ survey.results.count }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>There are currently no published surveys. Publish one!</p>
+    {% endif %}
+    
+    
+    <h3>Unpublished Surveys</h3>
+    
+    {% if unpublished_surveys.exists %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Page Count</th>
+                    <th>Result Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for survey in unpublished_surveys %}
+                    <tr>
+                        <td>
+                            <div class="actions clearfix">
+                                <form action="{% url formly_dt_survey_publish pk=survey.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-mini btn-primary" type="submit">
+                                        <i class="icon-share icon-white"></i> Publish
+                                    </button>
+                                </form>
+                                <form action="{% url formly_dt_survey_duplicate pk=survey.pk %}" method="post">
+                                    {% csrf_token %}
+                                    <button class="btn btn-mini btn-primary" type="submit">
+                                        <i class="icon-share icon-white"></i> Duplicate
+                                    </button>
+                                </form>
+                            </div>
+                            <a class="btn btn-mini btn-info" href="{% url formly_dt_survey_detail pk=survey.pk %}">
+                                Edit Survey
+                            </a>
+                            <a class="btn btn-mini" href="{% url formly_rt_take_survey pk=survey.pk %}">
+                                Take Survey
+                            </a>
+                            <a class="btn btn-mini" href="{% url formly_survey_results pk=survey.pk %}">
+                                View Results
+                            </a>
+                        </td>
+                        <td>{{ survey.name }}</td>
+                        <td>{{ survey.created }}</td>
+                        <td>{{ survey.updated }}</td>
+                        <td>{{ survey.pages.count }}</td>
+                        <td>{{ survey.results.count }}</td>
+                    </tr>
+                {% endfor %}
+                
+            </tbody>
+        </table>
+    {% else %}
+        <p>There are currently no unpublished surveys. <a href="{% url formly_dt_survey_create %}">Create one!</a></p>
+    {% endif %}
+    
+{% endblock %}

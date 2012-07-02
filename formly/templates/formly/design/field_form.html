@@ -1,0 +1,75 @@
+{% extends "formly/design/survey_edit_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+
+<header class="jumbotron subhead" id="overview">
+  <h1>Modify Field</h1>
+  <p class="lead">Configure the field.</p>
+</header>
+
+<form action="{% url formly_dt_field_update pk=field.pk %}" method="post" class="well">
+    {% csrf_token %}
+    <fieldset>
+        {{ form|as_bootstrap }}
+    </fieldset>
+    <div class="form-actions">
+        <input type="hidden" name="action" value="field_update" />
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a class="btn" href="{{ field.page.get_absolute_url }}">Cancel</a>
+        <a class="btn btn-danger" href="{% url formly_dt_field_delete pk=field.pk %}">Delete</a>
+    </div>
+</form>
+
+{% if field.needs_choices %}
+    <h3>Choices</h3>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Label</th>
+                <th>Next Page</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for choice in field.choices.all %}
+            <tr>
+                <td>
+                    <a href="{% url formly_dt_choice_update pk=choice.pk %}">
+                        {{ choice.label }}
+                    </a>
+                </td>
+                <td>{{ choice.target|default:"" }}</td>
+                <td>
+                    <a class="btn btn-danger btn-mini" href="{% url formly_dt_choice_delete pk=choice.pk %}">Delete</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <a class="btn btn-success btn-mini" data-toggle="modal" href="#new-choice">
+        <i class="icon-plus icon-white"></i> Add Choice
+    </a>
+    
+    <div class="modal hide" id="new-choice">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">x</button>
+            <h3>Add Field</h3>
+        </div>
+        <form action="{% url formly_dt_field_update pk=field.pk %}" method="post">
+            {% csrf_token %}
+            <div class="modal-body">
+                {{ field_choice_form|as_bootstrap }}
+            </div>
+            <div class="modal-footer">
+                <input type="hidden" name="action" value="choice_add" />
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+        </form>
+    </div>
+{% endif %}
+
+{% endblock %}

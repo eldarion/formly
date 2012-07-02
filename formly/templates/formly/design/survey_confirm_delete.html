@@ -1,0 +1,22 @@
+{% extends "site_base.html" %}
+
+{% load bootstrap_tags %}
+
+{% block body %}
+    <header class="jumbotron subhead" id="overview">
+      <h1>Delete Survey</h1>
+      <p class="lead">Please confirm the deletion of this survey.</p>
+    </header>
+    
+    <form action="{% url formly_dt_survey_delete pk=survey.pk %}" method="post">
+        <legeng>{{ survey }}</legend>
+        {% csrf_token %}
+        <fieldset>
+            {{ form|as_bootstrap }}
+        </fieldset>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-danger">Delete</button>
+            <a class="btn" href="{{ survey.get_absolute_url }}">Cancel</a>
+        </div>
+    </form>
+{% endblock %}

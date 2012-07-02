@@ -1,0 +1,35 @@
+{% extends "site_base.html" %}
+
+{% block head_title %}Surveys{% endblock %}
+
+{% block body %}
+    <header class="jumbotron subhead" id="overview">
+      <h1>{{ survey }} Results</h1>
+      <p class="lead">View the results of the survey.</p>
+    </header>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>User</th>
+                <th>Page</th>
+                <th>Question</th>
+                <th>Answer</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in survey.results.all %}
+                <tr>
+                    <td>{{ result.result.user }}</td>
+                    <td>{{ result.page }}</td>
+                    <td>{{ result.question.label }}</td>
+                    {% if result.upload %}
+                        <td>{{ result.upload }}</td>
+                    {% else %}
+                        <td>{{ result.answer_display }}</td>
+                    {% endif %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

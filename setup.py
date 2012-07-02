@@ -108,7 +108,7 @@ NAME = "formly"
 DESCRIPTION = "a dynamic form generator"
 AUTHOR = "Patrick Altman"
 AUTHOR_EMAIL = "paltman@eldarion.com"
-URL = ""
+URL = "https://github.com/eldarion/formly"
 VERSION = __import__(PACKAGE).__version__
 
 

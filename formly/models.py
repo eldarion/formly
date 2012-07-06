@@ -204,15 +204,51 @@ class Field(models.Model):
     label = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     help_text = models.CharField(max_length=255, blank=True)
+    ordinal = models.IntegerField()
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
     required = models.BooleanField()
     
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.ordinal = (self.page.fields.aggregate(
+                Max("ordinal")
+            )["ordinal__max"] or 0) + 1
+        return super(Field, self).save(*args, **kwargs)
+    
+    def move_up(self):
+        try:
+            other_field = self.page.fields.order_by("-ordinal").filter(
+                ordinal__lt=self.ordinal
+            )[0]
+            existing = self.ordinal
+            other = other_field.ordinal
+            self.ordinal = other
+            other_field.ordinal = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
+    def move_down(self):
+        try:
+            other_field = self.page.fields.order_by("ordinal").filter(
+                ordinal__gt=self.ordinal
+            )[0]
+            existing = self.ordinal
+            other = other_field.ordinal
+            self.ordinal = other
+            other_field.ordinal = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
     class Meta:
         unique_together = [
-            ("page", "label"),
+            ("page", "label")
         ]
-        ordering = ["id"]
+        ordering = ["ordinal"]
         
     def __unicode__(self):
         return "%s of type %s on %s" % (
@@ -236,7 +272,11 @@ class Field(models.Model):
     
     def form_field(self):
         choices = [(x.pk, x.label) for x in self.choices.all()]
-        kwargs = dict(label=self.label, help_text=self.help_text, required=self.required)
+        kwargs = dict(
+            label=self.label,
+            help_text=self.help_text,
+            required=self.required
+        )
         field_class = forms.CharField
         
         if self.field_type == Field.TEXT_AREA:
@@ -258,7 +298,6 @@ class Field(models.Model):
             field_class = forms.FileField
         
         return field_class(**kwargs)
-
 
 
 class FieldChoice(models.Model):

@@ -1,5 +1,6 @@
 import json
 
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
@@ -114,6 +115,30 @@ def page_update(request, pk):
         "page": page,
         "field_form": field_form
     })
+
+
+@require_POST
+@login_required
+def field_move_up(request, pk):
+    field = get_object_or_404(Field, pk=pk)
+    field.move_up()
+    return HttpResponse(json.dumps({
+        "status": "OK",
+        "ordinal": field.ordinal,
+        "location": reverse("formly_dt_page_update", kwargs={"pk": field.page.pk})
+    }), mimetype="application/json")
+
+
+@require_POST
+@login_required
+def field_move_down(request, pk):
+    field = get_object_or_404(Field, pk=pk)
+    field.move_down()
+    return HttpResponse(json.dumps({
+        "status": "OK",
+        "ordinal": field.ordinal,
+        "location": reverse("formly_dt_page_update", kwargs={"pk": field.page.pk})
+    }), mimetype="application/json")
 
 
 @login_required

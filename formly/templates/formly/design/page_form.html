@@ -26,6 +26,7 @@
 <table class="table table-striped">
     <thead>
         <tr>
+            <th></th>
             <th>Label</th>
             <th>Type</th>
             <th>Help</th>
@@ -35,7 +36,17 @@
     </thead>
     <tbody>
         {% for field in page.fields.all %}
-        <tr>
+        <tr data-ordinal="{{ field.ordinal }}">
+            <td class="ordering">
+                <a class="btn btn-mini"
+                   href="{% url formly_dt_field_move_up pk=field.pk %}">
+                   Up
+                </a>
+                <a class="btn btn-mini"
+                   href="{% url formly_dt_field_move_down pk=field.pk %}">
+                   Down
+                </a>
+            </td>
             <td>
                 <a href="{% url formly_dt_field_update pk=field.pk %}">
                     {{ field.label }}
@@ -79,4 +90,27 @@
     </form>
 </div>
 
+{% endblock %}
+
+
+{% block extra_body %}
+    {{ block.super }}
+    <script type="text/javascript">
+    $(function() {
+        $(".ordering a").click(function(evt) {
+            evt.preventDefault()
+            var $this = $(this)
+            var $currentRow = $this.closest("tr")
+            $.ajax({
+                url: $this.attr("href"),
+                type: "post",
+                statusCode: {
+                    200: function(data) {
+                        window.location.href = data.location
+                    }
+                }
+            });
+        });
+    });
+    </script>
 {% endblock %}

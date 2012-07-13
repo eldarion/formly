@@ -282,7 +282,7 @@ class Field(models.Model):
         if self.field_type == Field.TEXT_AREA:
             kwargs.update({"widget": forms.Textarea()})
         elif self.field_type == Field.RADIO_CHOICES:
-            field_class = forms.ChaiceField
+            field_class = forms.ChoiceField
             kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
             field_class = forms.DateField

@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.4
+---
+
+- added authorization checks for all the views
+
+
 0.3
 ---
 

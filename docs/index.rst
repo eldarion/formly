@@ -33,3 +33,5 @@ Contents
  usage
  fields
  templates
+ authorization
+ callbacks

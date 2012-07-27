@@ -1,5 +1,6 @@
 import json
 
+from django.core.exceptions import PermissionDenied
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -14,8 +15,11 @@ from formly.models import Survey, Page, Field, FieldChoice
 
 @login_required
 def survey_list(request):
-    unpublished_surveys = request.user.surveys.filter(published__isnull=True)
-    published_surveys = request.user.surveys.filter(published__isnull=False)
+    unpublished_surveys = Survey.objects.filter(published__isnull=True)
+    published_surveys = Survey.objects.filter(published__isnull=False)
+    
+    if not request.user.has_perm("formly.view_survey_list"):
+        raise PermissionDenied()
     
     return render(request, "formly/design/survey_list.html", {
         "unpublished_surveys": unpublished_surveys,
@@ -25,7 +29,10 @@ def survey_list(request):
 
 @login_required
 def survey_detail(request, pk):
-    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    survey = get_object_or_404(Survey, pk=pk)
+    
+    if not request.user.has_perm("formly.view_survey_detail", obj=survey):
+        raise PermissionDenied()
     
     return render(request, "formly/design/survey_detail.html", {
         "survey": survey,
@@ -34,6 +41,9 @@ def survey_detail(request, pk):
 
 @login_required
 def survey_create(request):
+    if not request.user.has_perm("formly.create_survey"):
+        raise PermissionDenied()
+    
     if request.method == "POST":
         form = SurveyCreateForm(request.POST, user=request.user)
         if form.is_valid():
@@ -54,7 +64,11 @@ def survey_change_name(request, pk):
     Works well with:
       http://www.appelsiini.net/projects/jeditable
     """
-    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    survey = get_object_or_404(Survey, pk=pk)
+    
+    if not request.user.has_perm("formly.change_survey_name", obj=survey):
+        raise PermissionDenied()
+    
     survey.name = request.POST.get("name")
     survey.save()
     return HttpResponse(json.dumps({
@@ -66,7 +80,11 @@ def survey_change_name(request, pk):
 @require_POST
 @login_required
 def survey_publish(request, pk):
-    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    survey = get_object_or_404(Survey, pk=pk)
+    
+    if not request.user.has_perm("formly.publish_survey", obj=survey):
+        raise PermissionDenied()
+    
     survey.publish()
     return redirect("formly_dt_survey_list")
 
@@ -74,7 +92,11 @@ def survey_publish(request, pk):
 @require_POST
 @login_required
 def survey_duplicate(request, pk):
-    survey = get_object_or_404(Survey, pk=pk, creator=request.user)
+    survey = get_object_or_404(Survey, pk=pk)
+    
+    if not request.user.has_perm("formly.duplicate_survey", obj=survey):
+        raise PermissionDenied()
+    
     duped = survey.duplicate()
     return redirect("formly_dt_survey_detail", pk=duped.pk)
 
@@ -83,6 +105,10 @@ def survey_duplicate(request, pk):
 @login_required
 def page_create(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=survey):
+        raise PermissionDenied()
+    
     page = survey.pages.create()
     return redirect(page)
 
@@ -90,6 +116,9 @@ def page_create(request, pk):
 @login_required
 def page_update(request, pk):
     page = get_object_or_404(Page, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=page.survey):
+        raise PermissionDenied()
     
     if request.method == "POST":
         if request.POST.get("action") == "page_update":
@@ -121,6 +150,10 @@ def page_update(request, pk):
 @login_required
 def field_move_up(request, pk):
     field = get_object_or_404(Field, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=field.survey):
+        raise PermissionDenied()
+    
     field.move_up()
     return HttpResponse(json.dumps({
         "status": "OK",
@@ -133,6 +166,10 @@ def field_move_up(request, pk):
 @login_required
 def field_move_down(request, pk):
     field = get_object_or_404(Field, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=field.survey):
+        raise PermissionDenied()
+    
     field.move_down()
     return HttpResponse(json.dumps({
         "status": "OK",
@@ -144,6 +181,9 @@ def field_move_down(request, pk):
 @login_required
 def field_update(request, pk):
     field = get_object_or_404(Field, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=field.survey):
+        raise PermissionDenied()
     
     if request.method == "POST":
         if request.POST.get("action") == "field_update":
@@ -179,6 +219,9 @@ def field_update(request, pk):
 @login_required
 def choice_update(request, pk):
     choice = get_object_or_404(FieldChoice, pk=pk)
+    
+    if not request.user.has_perm("formly.edit_survey", obj=choice.field.survey):
+        raise PermissionDenied()
     
     if request.method == "POST":
         form = FieldChoiceForm(
@@ -220,4 +263,3 @@ class ChoiceDeleteView(BaseDeleteView):
     model = FieldChoice
     success_url_name = "formly_dt_field_update"
     pk_obj_name = "field"
-

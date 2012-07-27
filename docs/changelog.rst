@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.3
+---
+
+- added ability to control redirection at the end of a survey
+
+
 0.2
 ---
 

@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.4.1
+-----
+
+- fixed serialization bug, note this is a backwards incompatible change
+  if you have previously stored results
+
 0.4
 ---
 

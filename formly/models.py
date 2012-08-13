@@ -326,10 +326,15 @@ class FieldResult(models.Model):
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True) # @@@ I think this should be something different than a string
     
+    def answer_value(self):
+        if self.answer:
+            return self.answer.get("answer")
+    
     def answer_display(self):
-        if self.question.needs_choices:
-            return FieldChoice.objects.get(pk=int(self.answer))
-        return self.answer
+        val = self.answer_value()
+        if val and self.question.needs_choices:
+            return FieldChoice.objects.get(pk=int(val))
+        return val
     
     class Meta:
         ordering = ["result", "question"]

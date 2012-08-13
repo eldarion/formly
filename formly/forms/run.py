@@ -20,9 +20,9 @@ class PageForm(forms.Form):
         
         for field in self.page.fields.all():
             if field.field_type == field.MEDIA_FIELD:
-                defaults = {"answer": "", "upload": self.cleaned_data[field.name]}
+                defaults = {"answer": {"answer": ""}, "upload": self.cleaned_data[field.name]}
             else:
-                defaults = {"answer": self.cleaned_data[field.name], "upload": ""}
+                defaults = {"answer": {"answer": self.cleaned_data[field.name]}, "upload": ""}
             
             # @@@ Can't do a get_or_create as JSONField doesn't seem to respect defaults
             qs = FieldResult.objects.filter(

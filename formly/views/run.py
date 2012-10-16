@@ -36,6 +36,7 @@ def take_survey(request, pk):
         form = PageForm(page=page)
     
     return render(request, "formly/run/page.html", {
+        "survey": survey,
         "page": page,
         "form": form
     })

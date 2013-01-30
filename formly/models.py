@@ -319,12 +319,12 @@ class SurveyResult(models.Model):
 
 
 class FieldResult(models.Model):
-    survey = models.ForeignKey(Survey, related_name="results") # Denorm
-    page = models.ForeignKey(Page, related_name="results") # Denorm
+    survey = models.ForeignKey(Survey, related_name="results")  # Denorm
+    page = models.ForeignKey(Page, related_name="results")  # Denorm
     result = models.ForeignKey(SurveyResult, related_name="results")
     question = models.ForeignKey(Field, related_name="results")
     upload = models.FileField(upload_to="formly/", blank=True)
-    answer = JSONField(blank=True) # @@@ I think this should be something different than a string
+    answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
     
     def answer_value(self):
         if self.answer:

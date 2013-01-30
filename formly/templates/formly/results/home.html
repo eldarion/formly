@@ -26,7 +26,7 @@
                     {% if result.upload %}
                         <td>{{ result.upload }}</td>
                     {% else %}
-                        <td>{{ result.answer_display }}</td>
+                        <td>{{ result.answer_display|default:result.answer_value }}</td>
                     {% endif %}
                 </tr>
             {% endfor %}

@@ -291,7 +291,7 @@ class Field(models.Model):
             kwargs.update({"widget": forms.Select(), "choices": choices})
         elif self.field_type == Field.CHECKBOX_FIELD:
             field_class = forms.MultipleChoiceField
-            kwargs.update({"widget": forms.CheckboxInput(), "choices": choices})
+            kwargs.update({"widget": forms.CheckboxSelectMultiple(), "choices": choices})
         elif self.field_type == Field.BOOLEAN_FIELD:
             field_class = forms.BooleanField
         elif self.field_type == Field.MEDIA_FIELD:

@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.4.2
+-----
+
+- fixed multiple choice field
+- added survey to context
+
 0.4.1
 -----
 

@@ -131,6 +131,34 @@ class Page(models.Model):
     def get_absolute_url(self):
         return reverse("formly_dt_page_update", kwargs={"pk": self.pk})
     
+    def move_up(self):
+        try:
+            other_field = self.survey.pages.order_by("-page_num").filter(
+                page_num__lt=self.page_num
+            )[0]
+            existing = self.page_num
+            other = other_field.page_num
+            self.page_num = other
+            other_field.page_num = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
+    def move_down(self):
+        try:
+            other_field = self.page.fields.order_by("page_num").filter(
+                page_num__gt=self.page_num
+            )[0]
+            existing = self.page_num
+            other = other_field.page_num
+            self.page_num = other
+            other_field.page_num = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
     def next_page(self, user):
         target = self
         

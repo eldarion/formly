@@ -1,4 +1,7 @@
+import json
+
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
@@ -304,13 +307,33 @@ class Field(models.Model):
         elif self.field_type == Field.MEDIA_FIELD:
             field_class = forms.FileField
         
-        return field_class(**kwargs)
+        field = field_class(**kwargs)
+        qs = self.choices.filter(target__isnull=False)
+        if qs.exists():
+            urls = json.dumps(dict([
+                (c.pk, reverse("formly_rt_choice_question", kwargs={"pk": c.pk}))
+                for c in qs
+            ]))
+            field.widget.attrs["data-choice-question-urls"] = urls
+        return field
 
 
 class FieldChoice(models.Model):
     field = models.ForeignKey(Field, related_name="choices")
     label = models.CharField(max_length=100)
-    target = models.ForeignKey(Page, null=True, blank=True)
+    target = models.ForeignKey(Field, null=True, blank=True, related_name="target_choices")
+    
+    def clean(self):
+        super(FieldChoice, self).clean()
+        if self.target is not None:
+            if self.target.page:
+                raise ValidationError(
+                    "FieldChoice target's can only be questions not associated with a page."
+                )
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(FieldChoice, self).save(*args, **kwargs)
     
     def __unicode__(self):
         return self.label

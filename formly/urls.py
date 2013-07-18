@@ -4,8 +4,6 @@ from formly.views import design
 from formly.views import results
 from formly.views import run
 
-import formly.receivers
-
 
 urlpatterns = patterns("",
     url(r"^design/$", design.survey_list, name="formly_dt_survey_list"),

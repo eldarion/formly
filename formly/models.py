@@ -173,27 +173,6 @@ class Page(models.Model):
             if self.target:
                 target = self.target
             
-            # Choice target resolved first
-            choice_results = self.results.filter(
-                question__field_type__in=[
-                    Field.RADIO_CHOICES,
-                    Field.SELECT_FIELD,
-                    Field.CHECKBOX_FIELD,
-                ],
-                result__user=user
-            )
-            choice_targets = FieldChoice.objects.filter(
-                pk__in=[
-                    int(x.answer)
-                    for x in choice_results
-                    if not isinstance(x.answer, (list, dict))
-                ],
-                target__isnull=False
-            )
-            if choice_targets.count() > 0:
-                # Use the first one it finds for lack of a better directive
-                target = choice_targets[0].target
-            
             if target and target.completed(user=user):
                 target = target.next_page(user=user)
         

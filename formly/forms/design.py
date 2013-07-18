@@ -46,12 +46,6 @@ class FieldForm(forms.ModelForm):
 
 class FieldChoiceForm(forms.ModelForm):
     
-    target = forms.ModelChoiceField(
-        label="Next Page",
-        queryset=Page.objects.all(),
-        required=False
-    )
-    
     class Meta:
         model = FieldChoice
         fields = [

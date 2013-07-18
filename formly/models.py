@@ -209,8 +209,8 @@ class Field(models.Model):
         (BOOLEAN_FIELD, "boolean field")
     ]
     
-    page = models.ForeignKey(Page, related_name="fields")
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
+    page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
     label = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     help_text = models.CharField(max_length=255, blank=True)
@@ -219,7 +219,16 @@ class Field(models.Model):
     # represent cross field constraints
     required = models.BooleanField()
     
+    def clean(self):
+        super(Field, self).clean()
+        if self.page is None:
+            if self.target_choices.count() == 0:
+                raise ValidationError(
+                    "A question not on a page must be a target of a choice from another question"
+                )
+    
     def save(self, *args, **kwargs):
+        self.full_clean()
         if not self.pk:
             self.ordinal = (self.page.fields.aggregate(
                 Max("ordinal")

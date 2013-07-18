@@ -29,7 +29,7 @@ class Survey(models.Model):
     def get_absolute_url(self):
         return reverse("formly_dt_survey_detail", kwargs={"pk": self.pk})
     
-    def duplicate(self): # @@@ This could like use with some refactoring
+    def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
         survey.pk = None
         survey.save()
@@ -199,8 +199,8 @@ class Field(models.Model):
         (BOOLEAN_FIELD, "boolean field")
     ]
     
-    survey = models.ForeignKey(Survey, related_name="fields") # Denorm
     page = models.ForeignKey(Page, related_name="fields")
+    survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     label = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     help_text = models.CharField(max_length=255, blank=True)

@@ -40,6 +40,7 @@ class FieldForm(forms.ModelForm):
             "label",
             "field_type",
             "help_text",
+            "maximum_choices",
             "required"
         ]
 

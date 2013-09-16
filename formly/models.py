@@ -215,6 +215,7 @@ class Field(models.Model):
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     help_text = models.CharField(max_length=255, blank=True)
     ordinal = models.IntegerField()
+    maximum_choices = models.IntegerField(null=True, blank=True)
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
     required = models.BooleanField()

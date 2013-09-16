@@ -3,6 +3,10 @@
 ChangeLog
 =========
 
+0.5
+---
+
+- add maximum_choices field
 0.4.2
 -----
 

@@ -265,11 +265,8 @@ class Field(models.Model):
             return
     
     class Meta:
-        unique_together = [
-            ("page", "label")
-        ]
         ordering = ["ordinal"]
-        
+    
     def __unicode__(self):
         return "%s of type %s on %s" % (
             self.label, self.get_field_type_display(), self.survey

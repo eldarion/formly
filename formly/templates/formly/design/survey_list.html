@@ -8,7 +8,7 @@
       <p class="lead">View and manage existing surveys.</p>
       
       <p>
-        <a class="btn btn-success btn-mini" href="{% url formly_dt_survey_create %}">
+        <a class="btn btn-success btn-mini" href="{% url "formly_dt_survey_create" %}">
             <i class="icon-plus icon-white"></i> create survey
         </a>
       </p>
@@ -32,10 +32,10 @@
                 {% for survey in published_surveys %}
                     <tr>
                         <td>
-                            <a class="btn btn-mini btn-info" href="{% url formly_rt_take_survey pk=survey.pk %}">
+                            <a class="btn btn-mini btn-info" href="{% url "formly_rt_take_survey" pk=survey.pk %}">
                                 Take Survey
                             </a>
-                            <a class="btn btn-mini btn-warn" href="{% url formly_survey_results pk=survey.pk %}">
+                            <a class="btn btn-mini btn-warn" href="{% url "formly_survey_results" pk=survey.pk %}">
                                 View Results
                             </a>
                         </td>
@@ -72,26 +72,26 @@
                     <tr>
                         <td>
                             <div class="actions clearfix">
-                                <form action="{% url formly_dt_survey_publish pk=survey.pk %}" method="post">
+                                <form action="{% url "formly_dt_survey_publish" pk=survey.pk %}" method="post">
                                     {% csrf_token %}
                                     <button class="btn btn-mini btn-primary" type="submit">
                                         <i class="icon-share icon-white"></i> Publish
                                     </button>
                                 </form>
-                                <form action="{% url formly_dt_survey_duplicate pk=survey.pk %}" method="post">
+                                <form action="{% url "formly_dt_survey_duplicate" pk=survey.pk %}" method="post">
                                     {% csrf_token %}
                                     <button class="btn btn-mini btn-primary" type="submit">
                                         <i class="icon-share icon-white"></i> Duplicate
                                     </button>
                                 </form>
                             </div>
-                            <a class="btn btn-mini btn-info" href="{% url formly_dt_survey_detail pk=survey.pk %}">
+                            <a class="btn btn-mini btn-info" href="{% url "formly_dt_survey_detail" pk=survey.pk %}">
                                 Edit Survey
                             </a>
-                            <a class="btn btn-mini" href="{% url formly_rt_take_survey pk=survey.pk %}">
+                            <a class="btn btn-mini" href="{% url "formly_rt_take_survey" pk=survey.pk %}">
                                 Take Survey
                             </a>
-                            <a class="btn btn-mini" href="{% url formly_survey_results pk=survey.pk %}">
+                            <a class="btn btn-mini" href="{% url "formly_survey_results" pk=survey.pk %}">
                                 View Results
                             </a>
                         </td>
@@ -106,7 +106,7 @@
             </tbody>
         </table>
     {% else %}
-        <p>There are currently no unpublished surveys. <a href="{% url formly_dt_survey_create %}">Create one!</a></p>
+        <p>There are currently no unpublished surveys. <a href="{% url "formly_dt_survey_create" %}">Create one!</a></p>
     {% endif %}
     
 {% endblock %}

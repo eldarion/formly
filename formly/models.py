@@ -220,17 +220,17 @@ class Field(models.Model):
     # represent cross field constraints
     required = models.BooleanField()
     
-    def clean(self):
-        super(Field, self).clean()
-        if self.page is None:
-            if self.target_choices.count() == 0:
-                raise ValidationError(
-                    "A question not on a page must be a target of a choice from another question"
-                )
+    # def clean(self):
+    #     super(Field, self).clean()
+    #     if self.page is None:
+    #         if self.target_choices.count() == 0:
+    #             raise ValidationError(
+    #                 "A question not on a page must be a target of a choice from another question"
+    #             )
     
     def save(self, *args, **kwargs):
         self.full_clean()
-        if not self.pk:
+        if not self.pk and self.page is not None:
             self.ordinal = (self.page.fields.aggregate(
                 Max("ordinal")
             )["ordinal__max"] or 0) + 1

@@ -19,7 +19,6 @@ class FieldResultMixin(object):
         
         qs = FieldResult.objects.filter(
             survey=field.survey,
-            page=None,
             result=self._survey_result,
             question=field
         )
@@ -31,7 +30,7 @@ class FieldResultMixin(object):
         else:
             result = FieldResult.objects.create(
                 survey=field.survey,
-                page=None,
+                page=field.page,
                 result=self._survey_result,
                 question=field,
                 answer=defaults["answer"],

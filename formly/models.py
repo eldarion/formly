@@ -315,13 +315,6 @@ class Field(models.Model):
             field_class = forms.FileField
         
         field = field_class(**kwargs)
-        qs = self.choices.filter(target__isnull=False)
-        if qs.exists():
-            urls = json.dumps(dict([
-                (c.pk, reverse("formly_rt_choice_question", kwargs={"pk": c.pk}))
-                for c in qs
-            ]))
-            field.widget.attrs["data-choice-question-urls"] = urls
         return field
 
 

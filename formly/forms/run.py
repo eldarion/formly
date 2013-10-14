@@ -46,6 +46,15 @@ class PageForm(FieldResultMixin, forms.Form):
         super(PageForm, self).__init__(*args, **kwargs)
         for field in self.page.fields.all():
             self.fields[field.name] = field.form_field()
+            targets = field.choices.filter(target__isnull=False)
+            if targets.count() > 0:
+                self.fields[field.name].widget.attrs["data-reveal"] = ",".join([
+                    "{0}".format(target.pk) for target in targets
+                ])
+                for target in targets:
+                    self.fields[target.target.name] = target.target.form_field()
+                    self.fields[target.target.name].widget.attrs["class"] = "hide"
+                    self.fields[target.target.name].widget.attrs["data-reveal-id"] = target.pk
     
     def save(self, user):
         for field in self.page.fields.all():

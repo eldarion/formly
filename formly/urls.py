@@ -4,8 +4,6 @@ from formly.views import design
 from formly.views import results
 from formly.views import run
 
-import formly.receivers
-
 
 urlpatterns = patterns("",
     url(r"^design/$", design.survey_list, name="formly_dt_survey_list"),
@@ -26,6 +24,7 @@ urlpatterns = patterns("",
     url(r"^design/surveys/(?P<pk>\d+)/delete/$", design.SurveyDeleteView.as_view(), name="formly_dt_survey_delete"),
     
     url(r"^run/survey/(?P<pk>\d+)/$", run.take_survey, name="formly_rt_take_survey"),
+    url(r"^run/ajax/choice-question/(?P<pk>\d+)/$", run.choice_question, name="formly_rt_choice_question"),
     
     url(r"^results/survey/(?P<pk>\d+)/$", results.survey_results, name="formly_survey_results")
 )

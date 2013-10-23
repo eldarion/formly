@@ -1,10 +1,13 @@
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
+from django.template import RequestContext
+from django.template.loader import render_to_string
 
 from django.contrib.auth.decorators import login_required
 
-from formly.forms.run import PageForm
-from formly.models import Survey, Field
+from formly.forms.run import PageForm, TargetForm
+from formly.models import Survey, Field, FieldChoice
 from formly.utils.importing import load_path_attr
 
 
@@ -40,3 +43,27 @@ def take_survey(request, pk):
         "page": page,
         "form": form
     })
+
+
+@login_required
+def choice_question(request, pk):
+    choice = get_object_or_404(FieldChoice, pk=pk)
+    
+    if request.method == "POST":
+        kwargs = dict(data=request.POST, choice=choice)
+        if choice.target.field_type == Field.MEDIA_FIELD:
+            kwargs.update({"files": request.FILES})
+        
+        form = TargetForm(**kwargs)
+        if form.is_valid():
+            form.save(user=request.user)
+            form = TargetForm(choice=choice)
+    else:
+        form = TargetForm(choice=choice)
+    
+    data = {
+        "html": render_to_string(
+            "formly/run/_question.html",
+            RequestContext(request, {"form": form}))
+    }
+    return HttpResponse(json.dumps(data), content_type="application/json")

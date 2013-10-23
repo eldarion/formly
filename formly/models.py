@@ -1,4 +1,7 @@
+import json
+
 from django import forms
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
@@ -29,7 +32,7 @@ class Survey(models.Model):
     def get_absolute_url(self):
         return reverse("formly_dt_survey_detail", kwargs={"pk": self.pk})
     
-    def duplicate(self): # @@@ This could like use with some refactoring
+    def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
         survey.pk = None
         survey.save()
@@ -131,6 +134,34 @@ class Page(models.Model):
     def get_absolute_url(self):
         return reverse("formly_dt_page_update", kwargs={"pk": self.pk})
     
+    def move_up(self):
+        try:
+            other_field = self.survey.pages.order_by("-page_num").filter(
+                page_num__lt=self.page_num
+            )[0]
+            existing = self.page_num
+            other = other_field.page_num
+            self.page_num = other
+            other_field.page_num = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
+    def move_down(self):
+        try:
+            other_field = self.page.fields.order_by("page_num").filter(
+                page_num__gt=self.page_num
+            )[0]
+            existing = self.page_num
+            other = other_field.page_num
+            self.page_num = other
+            other_field.page_num = existing
+            other_field.save()
+            self.save()
+        except IndexError:
+            return
+    
     def next_page(self, user):
         target = self
         
@@ -144,27 +175,6 @@ class Page(models.Model):
             
             if self.target:
                 target = self.target
-            
-            # Choice target resolved first
-            choice_results = self.results.filter(
-                question__field_type__in=[
-                    Field.RADIO_CHOICES,
-                    Field.SELECT_FIELD,
-                    Field.CHECKBOX_FIELD,
-                ],
-                result__user=user
-            )
-            choice_targets = FieldChoice.objects.filter(
-                pk__in=[
-                    int(x.answer)
-                    for x in choice_results
-                    if not isinstance(x.answer, (list, dict))
-                ],
-                target__isnull=False
-            )
-            if choice_targets.count() > 0:
-                # Use the first one it finds for lack of a better directive
-                target = choice_targets[0].target
             
             if target and target.completed(user=user):
                 target = target.next_page(user=user)
@@ -199,18 +209,28 @@ class Field(models.Model):
         (BOOLEAN_FIELD, "boolean field")
     ]
     
-    survey = models.ForeignKey(Survey, related_name="fields") # Denorm
-    page = models.ForeignKey(Page, related_name="fields")
+    survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
+    page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
     label = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     help_text = models.CharField(max_length=255, blank=True)
     ordinal = models.IntegerField()
+    maximum_choices = models.IntegerField(null=True, blank=True)
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
     required = models.BooleanField()
     
+    # def clean(self):
+    #     super(Field, self).clean()
+    #     if self.page is None:
+    #         if self.target_choices.count() == 0:
+    #             raise ValidationError(
+    #                 "A question not on a page must be a target of a choice from another question"
+    #             )
+    
     def save(self, *args, **kwargs):
-        if not self.pk:
+        self.full_clean()
+        if not self.pk and self.page is not None:
             self.ordinal = (self.page.fields.aggregate(
                 Max("ordinal")
             )["ordinal__max"] or 0) + 1
@@ -245,11 +265,8 @@ class Field(models.Model):
             return
     
     class Meta:
-        unique_together = [
-            ("page", "label")
-        ]
         ordering = ["ordinal"]
-        
+    
     def __unicode__(self):
         return "%s of type %s on %s" % (
             self.label, self.get_field_type_display(), self.survey
@@ -297,13 +314,26 @@ class Field(models.Model):
         elif self.field_type == Field.MEDIA_FIELD:
             field_class = forms.FileField
         
-        return field_class(**kwargs)
+        field = field_class(**kwargs)
+        return field
 
 
 class FieldChoice(models.Model):
     field = models.ForeignKey(Field, related_name="choices")
     label = models.CharField(max_length=100)
-    target = models.ForeignKey(Page, null=True, blank=True)
+    target = models.ForeignKey(Field, null=True, blank=True, related_name="target_choices")
+    
+    def clean(self):
+        super(FieldChoice, self).clean()
+        if self.target is not None:
+            if self.target.page:
+                raise ValidationError(
+                    "FieldChoice target's can only be questions not associated with a page."
+                )
+    
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super(FieldChoice, self).save(*args, **kwargs)
     
     def __unicode__(self):
         return self.label

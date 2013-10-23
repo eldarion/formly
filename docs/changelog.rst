@@ -3,6 +3,13 @@
 ChangeLog
 =========
 
+0.5
+---
+
+- made urls Django 1.5 compatible
+- add maximum_choices field
+- drop unique constraint on field label
+
 0.4.2
 -----
 

@@ -8,7 +8,7 @@
       <p class="lead">Edit the details for this page.</p>
     </header>
 
-<form action="{% url formly_dt_page_update pk=page.pk %}" method="post" class="well">
+<form action="{% url "formly_dt_page_update" pk=page.pk %}" method="post" class="well">
     {% csrf_token %}
     <fieldset>
         {{ form|as_bootstrap }}
@@ -17,7 +17,7 @@
         <input type="hidden" name="action" value="page_update" />
         <button type="submit" class="btn btn-primary">Save</button>
         <a class="btn" href="{{ page.survey.get_absolute_url }}">Cancel</a>
-        <a class="btn btn-danger" href="{% url formly_dt_page_delete pk=page.pk %}">Delete</a>
+        <a class="btn btn-danger" href="{% url "formly_dt_page_delete" pk=page.pk %}">Delete</a>
     </div>
 </form>
 
@@ -39,16 +39,16 @@
         <tr data-ordinal="{{ field.ordinal }}">
             <td class="ordering">
                 <a class="btn btn-mini"
-                   href="{% url formly_dt_field_move_up pk=field.pk %}">
+                   href="{% url "formly_dt_field_move_up" pk=field.pk %}">
                    Up
                 </a>
                 <a class="btn btn-mini"
-                   href="{% url formly_dt_field_move_down pk=field.pk %}">
+                   href="{% url "formly_dt_field_move_down" pk=field.pk %}">
                    Down
                 </a>
             </td>
             <td>
-                <a href="{% url formly_dt_field_update pk=field.pk %}">
+                <a href="{% url "formly_dt_field_update" pk=field.pk %}">
                     {{ field.label }}
                 </a>
             </td>
@@ -63,7 +63,7 @@
             <td>{{ field.help_text }}</td>
             <td>{{ field.required }}</td>
             <td>
-                <a class="btn btn-danger btn-mini" href="{% url formly_dt_field_delete pk=field.pk %}">Delete</a>
+                <a class="btn btn-danger btn-mini" href="{% url "formly_dt_field_delete" pk=field.pk %}">Delete</a>
             </td>
         </tr>
         {% endfor %}
@@ -77,7 +77,7 @@
         <button type="button" class="close" data-dismiss="modal">×</button>
         <h3>Add Field</h3>
     </div>
-    <form action="{% url formly_dt_page_update pk=page.pk %}" method="post">
+    <form action="{% url "formly_dt_page_update" pk=page.pk %}" method="post">
         {% csrf_token %}
         <input type="hidden" name="action" value="field_add" />
         <div class="modal-body">

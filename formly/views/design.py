@@ -115,6 +115,7 @@ def page_create(request, pk):
 
 @login_required
 def page_update(request, pk):
+    # @@@ break this apart into seperate views
     page = get_object_or_404(Page, pk=pk)
     
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):
@@ -188,7 +189,7 @@ def field_update(request, pk):
     if request.method == "POST":
         if request.POST.get("action") == "field_update":
             form = FieldForm(data=request.POST, instance=field)
-            field_choice_form = FieldChoiceForm(field=field, prefix="choices")
+            field_choice_form = FieldChoiceForm(prefix="choices")
             if form.is_valid():
                 form.save()
                 return redirect(field.page.get_absolute_url())
@@ -196,7 +197,6 @@ def field_update(request, pk):
             form = FieldForm(instance=field)
             field_choice_form = FieldChoiceForm(
                 data=request.POST,
-                field=field,
                 prefix="choices"
             )
             if field_choice_form.is_valid():
@@ -206,7 +206,7 @@ def field_update(request, pk):
                 return redirect("formly_dt_field_update", pk=field.pk)
     else:
         form = FieldForm(instance=field)
-        field_choice_form = FieldChoiceForm(field=field, prefix="choices")
+        field_choice_form = FieldChoiceForm(prefix="choices")
     
     return render(request, "formly/design/field_form.html", {
         "form": form,
@@ -225,7 +225,6 @@ def choice_update(request, pk):
     
     if request.method == "POST":
         form = FieldChoiceForm(
-            field=choice.field,
             data=request.POST,
             instance=choice
         )
@@ -233,7 +232,7 @@ def choice_update(request, pk):
             form.save()
             return redirect(choice.field.page)
     else:
-        form = FieldChoiceForm(field=choice.field, instance=choice)
+        form = FieldChoiceForm(instance=choice)
     
     return render(request, "formly/design/choice_form.html", {
         "form": form,

@@ -7,7 +7,7 @@
             <li{% if p == page %} class="active"{% endif %}><a href="{{ p.get_absolute_url }}">{{ p.label }}</a></li>
         {% endfor %}
     </ul>
-    <form action="{% url formly_dt_page_create pk=page.survey.pk %}" method="post" style="margin-top: 1em;">
+    <form action="{% url "formly_dt_page_create" pk=page.survey.pk %}" method="post" style="margin-top: 1em;">
         {% csrf_token %}
         <button type="submit" class="btn btn-mini btn-success"><i class="icon-plus icon-white"></i> Add Page</button>
     </form>

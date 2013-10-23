@@ -25,23 +25,10 @@ class SurveyCreateForm(forms.ModelForm):
 
 class PageUpdateForm(forms.ModelForm):
     
-    target = forms.ModelChoiceField(
-        label="Next Page",
-        queryset=Page.objects.all(),
-        required=False
-    )
-    
-    def __init__(self, *args, **kwargs):
-        super(PageUpdateForm, self).__init__(*args, **kwargs)
-        self.fields["target"].queryset = self.instance.survey.pages.exclude(
-            pk=self.instance.pk
-        )
-    
     class Meta:
         model = Page
         fields = [
-            "subtitle",
-            "target"
+            "subtitle"
         ]
 
 
@@ -53,28 +40,15 @@ class FieldForm(forms.ModelForm):
             "label",
             "field_type",
             "help_text",
+            "maximum_choices",
             "required"
         ]
 
 
 class FieldChoiceForm(forms.ModelForm):
     
-    target = forms.ModelChoiceField(
-        label="Next Page",
-        queryset=Page.objects.all(),
-        required=False
-    )
-    
-    def __init__(self, field, *args, **kwargs):
-        super(FieldChoiceForm, self).__init__(*args, **kwargs)
-        self.field = field
-        self.fields["target"].queryset = self.field.survey.pages.exclude(
-            pk=self.field.page.pk
-        )
-    
     class Meta:
         model = FieldChoice
         fields = [
-            "label",
-            "target"
+            "label"
         ]

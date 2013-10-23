@@ -5,7 +5,7 @@
 {% block head_title %}Create Survey{% endblock %}
 
 {% block body %}
-    <form action="{% url formly_dt_survey_create %}" method="post">
+    <form action="{% url "formly_dt_survey_create" %}" method="post">
         <legend>Create a new survey</legend>
         {% csrf_token %}
         <fieldset>

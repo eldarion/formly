@@ -199,14 +199,14 @@ class Field(models.Model):
     BOOLEAN_FIELD = 7
     
     FIELD_TYPE_CHOICES = [
-        (TEXT_FIELD, "text field"),
-        (TEXT_AREA, "textarea"),
-        (RADIO_CHOICES, "radio choices"),
-        (SELECT_FIELD, "dropdown field"),
-        (CHECKBOX_FIELD, "checkbox field (can select multiple answers"),
-        (DATE_FIELD, "date field"),
-        (MEDIA_FIELD, "media upload field"),
-        (BOOLEAN_FIELD, "boolean field")
+        (TEXT_FIELD, "Free Response - One Line"),
+        (TEXT_AREA, "Free Response - Box"),
+        (RADIO_CHOICES, "Multiple Choice - Pick One"),
+        (SELECT_FIELD, "Multiple Choice - Pick One (Dropdown)"),
+        (CHECKBOX_FIELD, "Multiple Choice - Can select multiple answers"),
+        (DATE_FIELD, "Date"),
+        (MEDIA_FIELD, "File Upload"),
+        (BOOLEAN_FIELD, "True/False")
     ]
     
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm

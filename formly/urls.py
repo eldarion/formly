@@ -5,7 +5,8 @@ from formly.views import results
 from formly.views import run
 
 
-urlpatterns = patterns("",
+urlpatterns = patterns(
+    "",
     url(r"^design/$", design.survey_list, name="formly_dt_survey_list"),
     url(r"^design/surveys/(?P<pk>\d+)/$", design.survey_detail, name="formly_dt_survey_detail"),
     url(r"^design/surveys/create/$", design.survey_create, name="formly_dt_survey_create"),

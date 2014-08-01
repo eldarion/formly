@@ -14,34 +14,34 @@ from jsonfield import JSONField
 
 
 class Survey(models.Model):
-    
+
     name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, related_name="surveys")
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(default=timezone.now)
     published = models.DateTimeField(null=True, blank=True)
-    
+
     def save(self, *args, **kwargs):
         if self.pk:
             self.updated = timezone.now()
         return super(Survey, self).save(*args, **kwargs)
-    
+
     def __unicode__(self):
         return self.name
-    
+
     def get_absolute_url(self):
         return reverse("formly_dt_survey_detail", kwargs={"pk": self.pk})
-    
+
     def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
         survey.pk = None
         survey.save()
         survey.pages.all().delete()
-        
+
         pages = {}
         page_targets = []
         choice_targets = []
-        
+
         for page in Survey.objects.get(pk=self.pk).pages.all():
             orig_page_target = page.target
             orig_page_pk = page.pk
@@ -72,7 +72,7 @@ class Survey(models.Model):
                             "choice": choice,
                             "orig_target_pk": orig_target.pk
                         })
-        
+
         for page_target in page_targets:
             page = page_target["page"]
             page.target = pages[page_target["orig_target_pk"]]
@@ -81,23 +81,23 @@ class Survey(models.Model):
             choice = choice_target["choice"]
             choice.target = pages[choice_target["orig_target_pk"]]
             choice.save()
-        
+
         return survey
-    
+
     @property
     def fields(self):
         for page in self.pages.all():
             for field in page.fields.all():
                 yield field
-    
+
     def next_page(self, user):
         return self.first_page().next_page(user=user)
-    
+
     def first_page(self):
         if self.pages.count() == 0:
             self.pages.create()
         return self.pages.all()[0]
-    
+
     def publish(self):
         self.published = timezone.now()
         self.save()
@@ -109,31 +109,31 @@ class Page(models.Model):
     subtitle = models.CharField(max_length=255, blank=True)
     # Should be null when a FieldChoice on it's last field has a target.
     target = models.ForeignKey("self", null=True, blank=True)
-    
+
     class Meta:
         unique_together = [
             ("survey", "page_num")
         ]
         ordering = ["survey", "page_num"]
-    
+
     def save(self, *args, **kwargs):
         if self.page_num is None:
             max_page = self.survey.pages.aggregate(Max("page_num"))
             self.page_num = (max_page.get("page_num__max") or 0) + 1
         return super(Page, self).save(*args, **kwargs)
-    
+
     def __unicode__(self):
         return self.label()
-    
+
     def label(self):
         if self.subtitle:
             return self.subtitle
         else:
             return "Page %d" % self.page_num
-    
+
     def get_absolute_url(self):
         return reverse("formly_dt_page_update", kwargs={"pk": self.pk})
-    
+
     def move_up(self):
         try:
             other_field = self.survey.pages.order_by("-page_num").filter(
@@ -147,7 +147,7 @@ class Page(models.Model):
             self.save()
         except IndexError:
             return
-    
+
     def move_down(self):
         try:
             other_field = self.page.fields.order_by("page_num").filter(
@@ -161,10 +161,10 @@ class Page(models.Model):
             self.save()
         except IndexError:
             return
-    
+
     def next_page(self, user):
         target = self
-        
+
         if self.completed(user=user):
             try:
                 target = self.survey.pages.get(
@@ -172,18 +172,18 @@ class Page(models.Model):
                 )
             except Page.DoesNotExist:
                 target = None
-            
+
             if self.target:
                 target = self.target
-            
+
             if target and target.completed(user=user):
                 target = target.next_page(user=user)
-        
+
         return target
-    
+
     def completed(self, user):
         return self.results.filter(result__user=user).count() > 0
-    
+
     def is_last_page(self):
         return self.next_page() is None
 
@@ -197,7 +197,7 @@ class Field(models.Model):
     CHECKBOX_FIELD = 5
     MEDIA_FIELD = 6
     BOOLEAN_FIELD = 7
-    
+
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "Free Response - One Line"),
         (TEXT_AREA, "Free Response - Box"),
@@ -208,7 +208,7 @@ class Field(models.Model):
         (MEDIA_FIELD, "File Upload"),
         (BOOLEAN_FIELD, "True/False")
     ]
-    
+
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
     label = models.CharField(max_length=100)
@@ -219,7 +219,7 @@ class Field(models.Model):
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
     required = models.BooleanField()
-    
+
     # def clean(self):
     #     super(Field, self).clean()
     #     if self.page is None:
@@ -227,7 +227,7 @@ class Field(models.Model):
     #             raise ValidationError(
     #                 "A question not on a page must be a target of a choice from another question"
     #             )
-    
+
     def save(self, *args, **kwargs):
         self.full_clean()
         if not self.pk and self.page is not None:
@@ -235,7 +235,7 @@ class Field(models.Model):
                 Max("ordinal")
             )["ordinal__max"] or 0) + 1
         return super(Field, self).save(*args, **kwargs)
-    
+
     def move_up(self):
         try:
             other_field = self.page.fields.order_by("-ordinal").filter(
@@ -249,7 +249,7 @@ class Field(models.Model):
             self.save()
         except IndexError:
             return
-    
+
     def move_down(self):
         try:
             other_field = self.page.fields.order_by("ordinal").filter(
@@ -263,18 +263,18 @@ class Field(models.Model):
             self.save()
         except IndexError:
             return
-    
+
     class Meta:
         ordering = ["ordinal"]
-    
+
     def __unicode__(self):
         return "%s of type %s on %s" % (
             self.label, self.get_field_type_display(), self.survey
         )
-    
+
     def get_absolute_url(self):
         return reverse("formly_dt_field_update", kwargs={"pk": self.pk})
-    
+
     @property
     def needs_choices(self):
         return self.field_type in [
@@ -282,11 +282,11 @@ class Field(models.Model):
             Field.SELECT_FIELD,
             Field.CHECKBOX_FIELD
         ]
-    
+
     @property
     def name(self):
         return slugify(self.label)
-    
+
     def form_field(self):
         choices = [(x.pk, x.label) for x in self.choices.all()]
         kwargs = dict(
@@ -295,7 +295,7 @@ class Field(models.Model):
             required=self.required
         )
         field_class = forms.CharField
-        
+
         if self.field_type == Field.TEXT_AREA:
             kwargs.update({"widget": forms.Textarea()})
         elif self.field_type == Field.RADIO_CHOICES:
@@ -313,7 +313,7 @@ class Field(models.Model):
             field_class = forms.BooleanField
         elif self.field_type == Field.MEDIA_FIELD:
             field_class = forms.FileField
-        
+
         field = field_class(**kwargs)
         return field
 
@@ -322,7 +322,7 @@ class FieldChoice(models.Model):
     field = models.ForeignKey(Field, related_name="choices")
     label = models.CharField(max_length=100)
     target = models.ForeignKey(Field, null=True, blank=True, related_name="target_choices")
-    
+
     def clean(self):
         super(FieldChoice, self).clean()
         if self.target is not None:
@@ -330,11 +330,11 @@ class FieldChoice(models.Model):
                 raise ValidationError(
                     "FieldChoice target's can only be questions not associated with a page."
                 )
-    
+
     def save(self, *args, **kwargs):
         self.full_clean()
         return super(FieldChoice, self).save(*args, **kwargs)
-    
+
     def __unicode__(self):
         return self.label
 
@@ -343,7 +343,7 @@ class SurveyResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="survey_results")
     user = models.ForeignKey(User, related_name="survey_results")
     date_submitted = models.DateTimeField(default=timezone.now)
-    
+
     def get_absolute_url(self):
         return reverse("survey_edit", kwargs={"pk": self.pk, "page": 1})
 
@@ -355,16 +355,16 @@ class FieldResult(models.Model):
     question = models.ForeignKey(Field, related_name="results")
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
-    
+
     def answer_value(self):
         if self.answer:
             return self.answer.get("answer")
-    
+
     def answer_display(self):
         val = self.answer_value()
         if val and self.question.needs_choices:
             return FieldChoice.objects.get(pk=int(val))
         return val
-    
+
     class Meta:
         ordering = ["result", "question"]

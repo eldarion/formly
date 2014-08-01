@@ -7,7 +7,7 @@
       <h1>Delete Survey</h1>
       <p class="lead">Please confirm the deletion of this survey.</p>
     </header>
-    
+
     <form action="{% url "formly_dt_survey_delete" pk=survey.pk %}" method="post">
         <legeng>{{ survey }}</legend>
         {% csrf_token %}

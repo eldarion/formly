@@ -133,4 +133,3 @@ A template for displaying the results of a given survey.
 
 This template is rendered for the end user to complete a particular survey, it is always
 rendered with the appropriate page for the user.
-

@@ -4,17 +4,17 @@ from formly.models import Survey, Page, Field, FieldChoice
 
 
 class SurveyCreateForm(forms.ModelForm):
-    
+
     class Meta:
         model = Survey
         fields = [
             "name",
         ]
-    
+
     def __init__(self, *args, **kwargs):
         self.user = kwargs.pop("user")
         super(SurveyCreateForm, self).__init__(*args, **kwargs)
-    
+
     def save(self, commit=True):
         instance = super(SurveyCreateForm, self).save(commit=False)
         instance.creator = self.user
@@ -24,7 +24,7 @@ class SurveyCreateForm(forms.ModelForm):
 
 
 class PageUpdateForm(forms.ModelForm):
-    
+
     class Meta:
         model = Page
         fields = [
@@ -33,7 +33,7 @@ class PageUpdateForm(forms.ModelForm):
 
 
 class FieldForm(forms.ModelForm):
-    
+
     class Meta:
         model = Field
         fields = [
@@ -46,7 +46,7 @@ class FieldForm(forms.ModelForm):
 
 
 class FieldChoiceForm(forms.ModelForm):
-    
+
     class Meta:
         model = FieldChoice
         fields = [

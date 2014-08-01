@@ -4,26 +4,26 @@ from pinax.apps.account import auth_backends
 class AuthenticationBackend(auth_backends.AuthenticationBackend):
     """
     Permissions that do not receive an object:
-    
+
       * formly.view_survey_list
       * formly.create_survey
-   
+
     Permissions that receive a survey object:
-      
+
       * formly.view_survey_detail
       * formly.change_survey_name
       * formly.publish_survey
       * formly.duplicate_survey
       * formly.edit_survey
       * formly.view_results
-    
+
     Permissions that receive different object types:
-      
+
       * formly.delete_object
     """
     supports_object_permissions = True
     supports_anonymous_user = True
-    
+
     def has_perm(self, user, perm, obj=None):
         permissions = [
             "formly.view_survey_list",

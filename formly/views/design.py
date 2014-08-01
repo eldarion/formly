@@ -17,10 +17,10 @@ from formly.models import Survey, Page, Field, FieldChoice
 def survey_list(request):
     unpublished_surveys = Survey.objects.filter(published__isnull=True)
     published_surveys = Survey.objects.filter(published__isnull=False)
-    
+
     if not request.user.has_perm("formly.view_survey_list"):
         raise PermissionDenied()
-    
+
     return render(request, "formly/design/survey_list.html", {
         "unpublished_surveys": unpublished_surveys,
         "published_surveys": published_surveys
@@ -30,10 +30,10 @@ def survey_list(request):
 @login_required
 def survey_detail(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
-    
+
     if not request.user.has_perm("formly.view_survey_detail", obj=survey):
         raise PermissionDenied()
-    
+
     return render(request, "formly/design/survey_detail.html", {
         "survey": survey,
     })
@@ -43,7 +43,7 @@ def survey_detail(request, pk):
 def survey_create(request):
     if not request.user.has_perm("formly.create_survey"):
         raise PermissionDenied()
-    
+
     if request.method == "POST":
         form = SurveyCreateForm(request.POST, user=request.user)
         if form.is_valid():
@@ -51,7 +51,7 @@ def survey_create(request):
             return redirect(survey.first_page())
     else:
         form = SurveyCreateForm(user=request.user)
-    
+
     return render(request, "formly/design/survey_form.html", {
         "form": form,
     })
@@ -65,10 +65,10 @@ def survey_change_name(request, pk):
       http://www.appelsiini.net/projects/jeditable
     """
     survey = get_object_or_404(Survey, pk=pk)
-    
+
     if not request.user.has_perm("formly.change_survey_name", obj=survey):
         raise PermissionDenied()
-    
+
     survey.name = request.POST.get("name")
     survey.save()
     return HttpResponse(json.dumps({
@@ -81,10 +81,10 @@ def survey_change_name(request, pk):
 @login_required
 def survey_publish(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
-    
+
     if not request.user.has_perm("formly.publish_survey", obj=survey):
         raise PermissionDenied()
-    
+
     survey.publish()
     return redirect("formly_dt_survey_list")
 
@@ -93,10 +93,10 @@ def survey_publish(request, pk):
 @login_required
 def survey_duplicate(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
-    
+
     if not request.user.has_perm("formly.duplicate_survey", obj=survey):
         raise PermissionDenied()
-    
+
     duped = survey.duplicate()
     return redirect("formly_dt_survey_detail", pk=duped.pk)
 
@@ -105,10 +105,10 @@ def survey_duplicate(request, pk):
 @login_required
 def page_create(request, pk):
     survey = get_object_or_404(Survey, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=survey):
         raise PermissionDenied()
-    
+
     page = survey.pages.create()
     return redirect(page)
 
@@ -117,10 +117,10 @@ def page_create(request, pk):
 def page_update(request, pk):
     # @@@ break this apart into seperate views
     page = get_object_or_404(Page, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):
         raise PermissionDenied()
-    
+
     if request.method == "POST":
         if request.POST.get("action") == "page_update":
             form = PageUpdateForm(data=request.POST, instance=page)
@@ -151,10 +151,10 @@ def page_update(request, pk):
 @login_required
 def field_move_up(request, pk):
     field = get_object_or_404(Field, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=field.survey):
         raise PermissionDenied()
-    
+
     field.move_up()
     return HttpResponse(json.dumps({
         "status": "OK",
@@ -167,10 +167,10 @@ def field_move_up(request, pk):
 @login_required
 def field_move_down(request, pk):
     field = get_object_or_404(Field, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=field.survey):
         raise PermissionDenied()
-    
+
     field.move_down()
     return HttpResponse(json.dumps({
         "status": "OK",
@@ -182,10 +182,10 @@ def field_move_down(request, pk):
 @login_required
 def field_update(request, pk):
     field = get_object_or_404(Field, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=field.survey):
         raise PermissionDenied()
-    
+
     if request.method == "POST":
         if request.POST.get("action") == "field_update":
             form = FieldForm(data=request.POST, instance=field)
@@ -207,7 +207,7 @@ def field_update(request, pk):
     else:
         form = FieldForm(instance=field)
         field_choice_form = FieldChoiceForm(prefix="choices")
-    
+
     return render(request, "formly/design/field_form.html", {
         "form": form,
         "page": field.page,
@@ -219,10 +219,10 @@ def field_update(request, pk):
 @login_required
 def choice_update(request, pk):
     choice = get_object_or_404(FieldChoice, pk=pk)
-    
+
     if not request.user.has_perm("formly.edit_survey", obj=choice.field.survey):
         raise PermissionDenied()
-    
+
     if request.method == "POST":
         form = FieldChoiceForm(
             data=request.POST,
@@ -233,7 +233,7 @@ def choice_update(request, pk):
             return redirect(choice.field.page)
     else:
         form = FieldChoiceForm(instance=choice)
-    
+
     return render(request, "formly/design/choice_form.html", {
         "form": form,
         "choice": choice,

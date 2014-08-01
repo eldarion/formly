@@ -75,4 +75,3 @@ boolean field
 
 The ``boolean field`` renders and processes input using
 ``django.forms.BooleanField``.
-

@@ -22,9 +22,9 @@ urlpatterns = patterns("",
     url(r"^design/choices/(?P<pk>\d+)/delete/$", design.ChoiceDeleteView.as_view(), name="formly_dt_choice_delete"),
     url(r"^design/pages/(?P<pk>\d+)/delete/$", design.PageDeleteView.as_view(), name="formly_dt_page_delete"),
     url(r"^design/surveys/(?P<pk>\d+)/delete/$", design.SurveyDeleteView.as_view(), name="formly_dt_survey_delete"),
-    
+
     url(r"^run/survey/(?P<pk>\d+)/$", run.take_survey, name="formly_rt_take_survey"),
     url(r"^run/ajax/choice-question/(?P<pk>\d+)/$", run.choice_question, name="formly_rt_choice_question"),
-    
+
     url(r"^results/survey/(?P<pk>\d+)/$", results.survey_results, name="formly_survey_results")
 )

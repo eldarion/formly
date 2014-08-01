@@ -74,4 +74,3 @@ formly.delete_object
 
 Can the user delete the object in question. The object will be either a
 ``Survey``, ``Page``, ``Field``, or a ``FieldChoice``.
-

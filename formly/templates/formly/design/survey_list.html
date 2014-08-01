@@ -6,16 +6,16 @@
     <header class="jumbotron subhead" id="overview">
       <h1>Surveys</h1>
       <p class="lead">View and manage existing surveys.</p>
-      
+
       <p>
         <a class="btn btn-success btn-mini" href="{% url "formly_dt_survey_create" %}">
             <i class="icon-plus icon-white"></i> create survey
         </a>
       </p>
     </header>
-    
+
     <h3>Published Surveys</h3>
-    
+
     {% if published_surveys.exists %}
         <table class="table table-striped">
             <thead>
@@ -51,10 +51,10 @@
     {% else %}
         <p>There are currently no published surveys. Publish one!</p>
     {% endif %}
-    
-    
+
+
     <h3>Unpublished Surveys</h3>
-    
+
     {% if unpublished_surveys.exists %}
         <table class="table table-striped">
             <thead>
@@ -102,11 +102,11 @@
                         <td>{{ survey.results.count }}</td>
                     </tr>
                 {% endfor %}
-                
+
             </tbody>
         </table>
     {% else %}
         <p>There are currently no unpublished surveys. <a href="{% url "formly_dt_survey_create" %}">Create one!</a></p>
     {% endif %}
-    
+
 {% endblock %}

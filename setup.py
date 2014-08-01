@@ -137,4 +137,3 @@ setup(
         "django-jsonfield==0.8.10"
     ]
 )
-

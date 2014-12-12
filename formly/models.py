@@ -216,7 +216,7 @@ class Field(models.Model):
     maximum_choices = models.IntegerField(null=True, blank=True)
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
-    required = models.BooleanField()
+    required = models.BooleanField(default=False)
 
     # def clean(self):
     #     super(Field, self).clean()

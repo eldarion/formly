@@ -3,6 +3,14 @@
 ChangeLog
 =========
 
+0.6
+---
+
+- changed field label descriptions to be more suitable for less technical audiences
+- made compatible with Django > 1.5
+- drop unique constraint on field label
+
+
 0.5
 ---
 

@@ -132,6 +132,6 @@ setup(
     ],
     zip_safe=False,
     required=[
-        "django-jsonfield==0.8.10"
+        "django-jsonfield==0.9.13"
     ]
 )

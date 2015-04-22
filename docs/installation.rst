@@ -4,7 +4,7 @@ Installation
 ============
 
 * Requirements:
- * django-jsonfield==0.8.10
+ * django-jsonfield==0.9.13
 
 * Optional Requirements (to use the built in templates):
  * pinax-theme-bootstrap (not required if you use different block names)

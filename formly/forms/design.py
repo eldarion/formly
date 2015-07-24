@@ -41,7 +41,8 @@ class FieldForm(forms.ModelForm):
             "field_type",
             "help_text",
             "maximum_choices",
-            "required"
+            "required",
+            "expected_answers",
         ]
 
 

@@ -5,15 +5,13 @@ from django.db import models
 from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-
 from django.contrib.auth.models import User
-
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
 
-class Survey(models.Model):
 
+class Survey(models.Model):
     name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, related_name="surveys")
     created = models.DateTimeField(default=timezone.now)
@@ -325,7 +323,7 @@ class Field(models.Model):
                 "fields_length": self.expected_answers,
                 "widget": MultiTextWidget(widgets_length=self.expected_answers),
             })
-            
+
         field = field_class(**kwargs)
         return field
 

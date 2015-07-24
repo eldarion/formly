@@ -1,3 +1,4 @@
+import json
 from django import forms
 
 
@@ -9,8 +10,7 @@ class MultipleTextField(forms.MultiValueField):
         self.fields_length = fields_length
 
     def compress(self, data_list):
-        # TODO do something about commas in the value (use json.dumps maybe?)
-        return ", ".join(data_list)
+        return json.dumps(data_list)
 
 
 class MultiTextWidget(forms.MultiWidget):
@@ -20,5 +20,4 @@ class MultiTextWidget(forms.MultiWidget):
         super(MultiTextWidget, self).__init__(**kwargs)
 
     def decompress(self, value):
-        # TODO use json.reads?
-        return value.split(", ") if value is not None else []
+        return json.loads(value) if value is not None else []

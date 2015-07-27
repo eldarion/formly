@@ -5,14 +5,13 @@ from django.db import models
 from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
-
 from django.contrib.auth.models import User
-
 from jsonfield import JSONField
+
+from .forms import MultipleTextField, MultiTextWidget
 
 
 class Survey(models.Model):
-
     name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, related_name="surveys")
     created = models.DateTimeField(default=timezone.now)
@@ -195,6 +194,7 @@ class Field(models.Model):
     CHECKBOX_FIELD = 5
     MEDIA_FIELD = 6
     BOOLEAN_FIELD = 7
+    MULTIPLE_TEXT = 8
 
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "Free Response - One Line"),
@@ -204,7 +204,8 @@ class Field(models.Model):
         (CHECKBOX_FIELD, "Multiple Choice - Can select multiple answers"),
         (DATE_FIELD, "Date"),
         (MEDIA_FIELD, "File Upload"),
-        (BOOLEAN_FIELD, "True/False")
+        (BOOLEAN_FIELD, "True/False"),
+        (MULTIPLE_TEXT, "Multiple Free Responses - Single Lines"),
     ]
 
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
@@ -217,6 +218,7 @@ class Field(models.Model):
     # Should this be moved to a separate Constraint model that can also
     # represent cross field constraints
     required = models.BooleanField(default=False)
+    expected_answers = models.PositiveSmallIntegerField(default=1)
 
     # def clean(self):
     #     super(Field, self).clean()
@@ -285,6 +287,10 @@ class Field(models.Model):
     def name(self):
         return slugify(self.label)
 
+    @property
+    def is_multiple(self):
+        return self.field_type == Field.MULTIPLE_TEXT
+
     def form_field(self):
         choices = [(x.pk, x.label) for x in self.choices.all()]
         kwargs = dict(
@@ -311,6 +317,12 @@ class Field(models.Model):
             field_class = forms.BooleanField
         elif self.field_type == Field.MEDIA_FIELD:
             field_class = forms.FileField
+        elif self.field_type == Field.MULTIPLE_TEXT:
+            field_class = MultipleTextField
+            kwargs.update({
+                "fields_length": self.expected_answers,
+                "widget": MultiTextWidget(widgets_length=self.expected_answers),
+            })
 
         field = field_class(**kwargs)
         return field

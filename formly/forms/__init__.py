@@ -1,5 +1,6 @@
 import json
 from django import forms
+from django.template.loader import render_to_string
 
 
 class MultipleTextField(forms.MultiValueField):
@@ -21,3 +22,8 @@ class MultiTextWidget(forms.MultiWidget):
 
     def decompress(self, value):
         return json.loads(value) if value is not None else []
+
+    def format_output(self, rendered_widgets):
+        return render_to_string('formly/run/_multiple_input.html', {
+            "inputs": rendered_widgets,
+        })

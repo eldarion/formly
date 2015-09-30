@@ -1,6 +1,11 @@
+from collections import OrderedDict
+
 from django import forms
 
 from formly.models import SurveyResult, Field, FieldResult
+
+
+ORDER_BY_PK = True
 
 
 class FieldResultMixin(object):
@@ -44,17 +49,27 @@ class PageForm(FieldResultMixin, forms.Form):
     def __init__(self, *args, **kwargs):
         self.page = kwargs.pop("page")
         super(PageForm, self).__init__(*args, **kwargs)
-        for field in self.page.fields.all():
+        fields_key_order = []
+        count = 0
+        for field in self.page.fields.all().order_by("pk"):
             self.fields[field.name] = field.form_field()
-            targets = field.choices.filter(target__isnull=False)
+            fields_key_order.append((field.name, count))
+            count += 1
+            targets = field.choices.filter(target__isnull=False).order_by("pk")
+
             if targets.count() > 0:
                 self.fields[field.name].widget.attrs["data-reveal"] = ",".join([
                     "{0}".format(target.pk) for target in targets
                 ])
                 for target in targets:
+                    fields_key_order.append((target.target.name, count))
+                    count += 1
                     self.fields[target.target.name] = target.target.form_field()
                     self.fields[target.target.name].widget.attrs["class"] = "hide"
                     self.fields[target.target.name].widget.attrs["data-reveal-id"] = target.pk
+
+        if ORDER_BY_PK:
+            self.fields = OrderedDict((k, self.fields[k]) for k, v in fields_key_order)
 
     def save(self, user):
         for field in self.page.fields.all():

@@ -10,6 +10,8 @@ from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
 
+ORDER_BY_PK = True
+
 
 class Survey(models.Model):
     name = models.CharField(max_length=255)
@@ -292,7 +294,11 @@ class Field(models.Model):
         return self.field_type == Field.MULTIPLE_TEXT
 
     def form_field(self):
-        choices = [(x.pk, x.label) for x in self.choices.all()]
+        if ORDER_BY_PK:
+            choices = [(x.pk, x.label) for x in self.choices.all().order_by("pk")]
+        else:
+            choices = [(x.pk, x.label) for x in self.choices.all()]
+
         kwargs = dict(
             label=self.label,
             help_text=self.help_text,

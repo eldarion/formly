@@ -25,7 +25,7 @@ setup(
     test_suite="runtests.runtests",
     tests_require=[],
     install_requires=[
-        "django-jsonfield==0.9.13",
+        "jsonfield>=1.0.3",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

@@ -1,0 +1,7 @@
+[run]
+source = formly
+omit = formly/tests/*,formly/admin.py
+branch = 1
+
+[report]
+omit = formly/tests/*,formly/admin.py

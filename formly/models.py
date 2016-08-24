@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
@@ -5,12 +7,14 @@ from django.db import models
 from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
+from django.utils.encoding import python_2_unicode_compatible
 from django.contrib.auth.models import User
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
 
 
+@python_2_unicode_compatible
 class Survey(models.Model):
     name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, related_name="surveys")
@@ -23,7 +27,7 @@ class Survey(models.Model):
             self.updated = timezone.now()
         return super(Survey, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     def get_absolute_url(self):
@@ -100,6 +104,7 @@ class Survey(models.Model):
         self.save()
 
 
+@python_2_unicode_compatible
 class Page(models.Model):
     survey = models.ForeignKey(Survey, related_name="pages")
     page_num = models.PositiveIntegerField(null=True, blank=True)
@@ -119,7 +124,7 @@ class Page(models.Model):
             self.page_num = (max_page.get("page_num__max") or 0) + 1
         return super(Page, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label()
 
     def label(self):
@@ -185,6 +190,7 @@ class Page(models.Model):
         return self.next_page() is None
 
 
+@python_2_unicode_compatible
 class Field(models.Model):
     TEXT_FIELD = 0
     TEXT_AREA = 1
@@ -267,7 +273,7 @@ class Field(models.Model):
     class Meta:
         ordering = ["ordinal"]
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s of type %s on %s" % (
             self.label, self.get_field_type_display(), self.survey
         )
@@ -328,6 +334,7 @@ class Field(models.Model):
         return field
 
 
+@python_2_unicode_compatible
 class FieldChoice(models.Model):
     field = models.ForeignKey(Field, related_name="choices")
     label = models.CharField(max_length=100)
@@ -345,10 +352,11 @@ class FieldChoice(models.Model):
         self.full_clean()
         return super(FieldChoice, self).save(*args, **kwargs)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
 
+@python_2_unicode_compatible
 class SurveyResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="survey_results")
     user = models.ForeignKey(User, related_name="survey_results")
@@ -357,7 +365,11 @@ class SurveyResult(models.Model):
     def get_absolute_url(self):
         return reverse("survey_edit", kwargs={"pk": self.pk, "page": 1})
 
+    def __str__(self):
+        return self.__repr__()
 
+
+@python_2_unicode_compatible
 class FieldResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="results")  # Denorm
     page = models.ForeignKey(Page, related_name="results")  # Denorm
@@ -377,6 +389,9 @@ class FieldResult(models.Model):
                 return u", ".join([unicode(FieldChoice.objects.get(pk=int(v))) for v in val])
             return FieldChoice.objects.get(pk=int(val)).label
         return val
+
+    def __str__(self):
+        return self.__repr__()
 
     class Meta:
         ordering = ["result", "question"]

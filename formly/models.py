@@ -391,7 +391,7 @@ class FieldResult(models.Model):
         return val
 
     def __str__(self):
-        return self.__repr__()
+        return self.survey.name
 
     class Meta:
         ordering = ["result", "question"]

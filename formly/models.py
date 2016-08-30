@@ -366,7 +366,7 @@ class SurveyResult(models.Model):
         return reverse("survey_edit", kwargs={"pk": self.pk, "page": 1})
 
     def __str__(self):
-        return self.__repr__()
+        return self.survey.name
 
 
 @python_2_unicode_compatible

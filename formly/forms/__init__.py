@@ -24,6 +24,7 @@ class MultiTextWidget(forms.MultiWidget):
         return json.loads(value) if value is not None else []
 
     def format_output(self, rendered_widgets):
-        return render_to_string('formly/run/_multiple_input.html', {
-            "inputs": rendered_widgets,
-        })
+        return render_to_string(
+            "formly/run/_multiple_input.html",
+            {"inputs": rendered_widgets}
+        )

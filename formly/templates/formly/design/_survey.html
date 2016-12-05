@@ -1,0 +1,37 @@
+<div class="panel {% if survey == selected_survey %}panel-primary{% else %}panel-default{% endif %}">
+    <div class="panel-body">
+        <h4 style="margin-top: 0px">{{ survey.name }}</h4>
+        <em>{{ survey.pages.count }} Page{{ survey.pages.count|pluralize }}</em>
+        <div><small class="text-muted pull-right">{{ survey.updated }}</small></div>
+    </div>
+    <div class="panel-footer">
+        {% if not survey.published %}
+            <form style="display: inline-block" action="{% url "formly_dt_survey_publish" pk=survey.pk %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-xs btn-default">
+                    <i class="fa fa-fw fa-bullhorn"></i>
+                </button>
+            </form>
+            <form style="display: inline-block" action="{% url "formly_dt_survey_duplicate" pk=survey.pk %}" method="post">
+                {% csrf_token %}
+                <button class="btn btn-xs btn-default">
+                    <i class="fa fa-fw fa-clone"></i>
+                </button>
+            </form>
+            <a class="btn btn-xs btn-default" href="{% url "formly_dt_survey_detail" pk=survey.pk %}">
+                <i class="fa fa-fw fa-pencil"></i>
+            </a>
+        {% endif %}
+        <div class="{% if survey.published %}text-right{% else %}pull-right{% endif %}">
+            {% if survey.results.count %}
+                <a class="btn btn-xs btn-default" href="{% url "formly_survey_results" pk=survey.pk %}">
+                    {{ survey.results.count }}
+                    Result{{ survey.results.count|pluralize }}
+                </a>
+            {% endif %}
+            <a class="btn btn-xs btn-default" href="{% url "formly_rt_take_survey" pk=survey.pk %}">
+                Survey
+            </a>
+        </div>
+    </div>
+</div>

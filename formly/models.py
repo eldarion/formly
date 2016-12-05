@@ -134,7 +134,7 @@ class Page(models.Model):
             return "Page %d" % self.page_num
 
     def get_absolute_url(self):
-        return reverse("formly_dt_page_update", kwargs={"pk": self.pk})
+        return reverse("formly_dt_page_detail", kwargs={"pk": self.pk})
 
     def move_up(self):
         try:

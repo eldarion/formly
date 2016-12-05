@@ -1,0 +1,6 @@
+<h2>Surveys</h2>
+{% include "formly/design/_survey_form.html" %}
+<hr />
+{% for survey in surveys %}
+    {% include "formly/design/_survey.html" %}
+{% endfor %}

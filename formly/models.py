@@ -15,6 +15,38 @@ from .forms import MultipleTextField, MultiTextWidget
 
 
 @python_2_unicode_compatible
+class LikertScale(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return "{} [{}]".format(self.name, ", ".join([str(c) for c in self.choices.order_by("score")]))
+
+    def save(self, *args, **kwargs):
+        new = self.pk is None
+        scale = super(LikertScale, self).save(*args, **kwargs)
+        if new:
+            for score in [-2, -1, 0, 1, 2]:
+                self.choices.create(
+                    label="{}".format(score),
+                    score=score
+                )
+        return scale
+
+
+@python_2_unicode_compatible
+class LikertChoice(models.Model):
+    scale = models.ForeignKey(LikertScale, related_name="choices")
+    label = models.CharField(max_length=100)
+    score = models.IntegerField()
+
+    def __str__(self):
+        return "{} ({})".format(self.label, self.score)
+
+    class Meta:
+        unique_together = [("scale", "score"), ("scale", "label")]
+
+
+@python_2_unicode_compatible
 class Survey(models.Model):
     name = models.CharField(max_length=255)
     creator = models.ForeignKey(User, related_name="surveys")
@@ -201,6 +233,7 @@ class Field(models.Model):
     MEDIA_FIELD = 6
     BOOLEAN_FIELD = 7
     MULTIPLE_TEXT = 8
+    LIKERT_FIELD = 9
 
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "Free Response - One Line"),
@@ -212,12 +245,14 @@ class Field(models.Model):
         (MEDIA_FIELD, "File Upload"),
         (BOOLEAN_FIELD, "True/False"),
         (MULTIPLE_TEXT, "Multiple Free Responses - Single Lines"),
+        (LIKERT_FIELD, "Likert Scale")
     ]
 
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
     label = models.CharField(max_length=100)
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
+    scale = models.ForeignKey(LikertScale, default=None, null=True, blank=True, related_name="fields")
     help_text = models.CharField(max_length=255, blank=True)
     ordinal = models.IntegerField()
     maximum_choices = models.IntegerField(null=True, blank=True)
@@ -308,7 +343,7 @@ class Field(models.Model):
 
         if self.field_type == Field.TEXT_AREA:
             kwargs.update({"widget": forms.Textarea()})
-        elif self.field_type == Field.RADIO_CHOICES:
+        elif self.field_type == Field.RADIO_CHOICES or self.field_type == Field.LIKERT_FIELD:
             field_class = forms.ChoiceField
             kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:

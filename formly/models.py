@@ -386,7 +386,7 @@ class FieldResult(models.Model):
         val = self.answer_value()
         if val and self.question.needs_choices:
             if self.question.field_type == Field.CHECKBOX_FIELD:
-                return u", ".join([unicode(FieldChoice.objects.get(pk=int(v))) for v in val])
+                return ", ".join([str(FieldChoice.objects.get(pk=int(v))) for v in val])
             return FieldChoice.objects.get(pk=int(val)).label
         return val
 

@@ -333,7 +333,11 @@ class Field(models.Model):
         return self.field_type == Field.MULTIPLE_TEXT
 
     def form_field(self):
-        choices = [(x.pk, x.label) for x in self.choices.all()]
+        if self.field_type == Field.LIKERT_FIELD:
+            choices = [(x.pk, x.label) for x in self.scale.choices.all().order_by("score")]
+        else:
+            choices = [(x.pk, x.label) for x in self.choices.all()]
+
         kwargs = dict(
             label=self.label,
             help_text=self.help_text,
@@ -343,7 +347,7 @@ class Field(models.Model):
 
         if self.field_type == Field.TEXT_AREA:
             kwargs.update({"widget": forms.Textarea()})
-        elif self.field_type == Field.RADIO_CHOICES or self.field_type == Field.LIKERT_FIELD:
+        elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD]:
             field_class = forms.ChoiceField
             kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
@@ -419,10 +423,14 @@ class FieldResult(models.Model):
 
     def answer_display(self):
         val = self.answer_value()
-        if val and self.question.needs_choices:
-            if self.question.field_type == Field.CHECKBOX_FIELD:
-                return ", ".join([str(FieldChoice.objects.get(pk=int(v))) for v in val])
-            return FieldChoice.objects.get(pk=int(val)).label
+        if val:
+            if self.question.needs_choices:
+                if self.question.field_type == Field.CHECKBOX_FIELD:
+                    return ", ".join([str(FieldChoice.objects.get(pk=int(v))) for v in val])
+                return FieldChoice.objects.get(pk=int(val)).label
+            if self.question.field_type == Field.LIKERT_FIELD:
+                choice = LikertChoice.objects.get(pk=int(val))
+                return "{} ({})".format(choice.label, choice.score)
         return val
 
     def __str__(self):

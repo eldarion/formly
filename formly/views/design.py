@@ -12,8 +12,8 @@ except ImportError:
     from django.contrib.auth.decorators import login_required
 
 from formly.utils.views import BaseDeleteView
-from formly.forms.design import SurveyCreateForm, PageUpdateForm, FieldForm, FieldChoiceForm
-from formly.models import Survey, Page, Field, FieldChoice
+from formly.forms.design import SurveyCreateForm, PageUpdateForm, FieldForm, FieldChoiceForm, LikertScaleForm
+from formly.models import Survey, Page, Field, FieldChoice, LikertScale
 
 
 @login_required
@@ -264,6 +264,41 @@ def field_add_choice(request, pk):
     })
 
 
+@require_POST
+@login_required
+def likert_scale_set(request, field_pk, scale_pk):
+    field = get_object_or_404(Field, pk=field_pk, field_type=Field.LIKERT_FIELD)
+    scale = get_object_or_404(LikertScale, pk=scale_pk)
+    field.scale = scale
+    field.save()
+    return JsonResponse({
+        "html": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": LikertScale.objects.all()}, request)
+    })
+
+
+@require_POST
+@login_required
+def likert_scale_create(request, field_pk):
+    field = get_object_or_404(Field, pk=field_pk, field_type=Field.LIKERT_FIELD)
+    likert_scale_form = LikertScaleForm(request.POST)
+    if likert_scale_form.is_valid():
+        scale = likert_scale_form.save()
+        choices = likert_scale_form.cleaned_data["scale"]
+        for index, scale_choice in enumerate(scale.choices.all().order_by("score")):
+            if index < len(choices):
+                scale_choice.label = choices[index]
+                scale_choice.save()
+        field.scale = scale
+        field.save()
+        likert_scale_form = LikertScaleForm()
+    return JsonResponse({
+        "html": render_to_string("formly/design/_likert_scale_form.html", {"selected_field": field, "likert_scale_form": likert_scale_form}, request),
+        "fragments": {
+            ".likert-scales": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": LikertScale.objects.all()}, request)
+        }
+    })
+
+
 @login_required
 def field_update(request, pk):
     field = get_object_or_404(Field, pk=pk)
@@ -281,6 +316,7 @@ def field_update(request, pk):
     else:
         form = FieldForm(instance=field)
         field_choice_form = FieldChoiceForm(prefix="choices")
+        likert_scale_form = LikertScaleForm()
 
     return render(request, "formly/design/survey_list.html", {
         "surveys": Survey.objects.all().order_by("-created"),
@@ -291,7 +327,9 @@ def field_update(request, pk):
         "fields": field.page.fields.all().order_by("ordinal"),
         "selected_field": field,
         "field_form": form,
-        "field_choice_form": field_choice_form
+        "field_choice_form": field_choice_form,
+        "likert_scales": LikertScale.objects.all(),
+        "likert_scale_form": likert_scale_form
     })
 
 

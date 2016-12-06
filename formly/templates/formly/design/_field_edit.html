@@ -30,4 +30,14 @@
         </div>
     {% endif %}
 
+    {% if selected_field.field_type == selected_field.LIKERT_FIELD %}
+        <h3>Likert Scales</h3>
+        <p class="lead">Select a Likert Scale</p>
+
+        {% include "formly/design/_likert_scales.html" %}
+
+        <h4>Add a new Likert scale</h4>
+        {% include "formly/design/_likert_scale_form.html" %}
+
+    {% endif %}
 {% endif %}

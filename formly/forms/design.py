@@ -1,6 +1,6 @@
 from django import forms
 
-from formly.models import Survey, Page, Field, FieldChoice
+from formly.models import Survey, Page, Field, FieldChoice, LikertScale
 
 
 class SurveyCreateForm(forms.ModelForm):
@@ -29,6 +29,24 @@ class PageUpdateForm(forms.ModelForm):
         model = Page
         fields = [
             "subtitle"
+        ]
+
+
+class LikertScaleForm(forms.ModelForm):
+
+    scale = forms.CharField()
+
+    def clean_scale(self):
+        scale = self.cleaned_data["scale"]
+        if scale:
+            return [s.strip() for s in scale.split(",")]
+        scale
+
+    class Meta:
+        model = LikertScale
+        fields = [
+            "name",
+            "scale"
         ]
 
 

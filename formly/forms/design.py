@@ -40,7 +40,6 @@ class LikertScaleForm(forms.ModelForm):
         scale = self.cleaned_data["scale"]
         if scale:
             return [s.strip() for s in scale.split(",")]
-        scale
 
     class Meta:
         model = LikertScale

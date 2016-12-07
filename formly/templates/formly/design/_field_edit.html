@@ -1,0 +1,43 @@
+{% load bootstrap %}
+
+{% if field_form %}
+    <h2>Edit Field</h2>
+    <form action="{% url "formly_dt_field_update" pk=selected_field.pk %}" method="post" class="well">
+        {% csrf_token %}
+        {{ field_form|bootstrap }}
+        <div class="form-actions">
+            <input type="hidden" name="action" value="field_update" />
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn btn-danger" href="{% url "formly_dt_field_delete" pk=selected_field.pk %}">Delete</a>
+        </div>
+    </form>
+
+    {% if selected_field.needs_choices %}
+        <h3>Choices</h3>
+        <form action="{% url "formly_dt_field_add_choice" selected_field.pk %}" method="post" class="well">
+            {% csrf_token %}
+            {{ field_choice_form|bootstrap }}
+            <button class="btn btn-default btn-block">Add Choice</button>
+        </form>
+        <hr />
+        <div class="list-group">
+            {% for choice in selected_field.choices.all %}
+            <div class="list-group-item">
+                <a class="btn btn-danger btn-xs pull-right ajax" data-method="post" data-replace-closest=".list-group-item" href="{% url "formly_dt_ajax_choice_delete" pk=choice.pk %}"><i class="fa fa-fw fa-trash"></i></a>
+                {{ choice.label }}
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if selected_field.field_type == selected_field.LIKERT_FIELD %}
+        <h3>Likert Scales</h3>
+        <p class="lead">Select a Likert Scale</p>
+
+        {% include "formly/design/_likert_scales.html" %}
+
+        <h4>Add a new Likert scale</h4>
+        {% include "formly/design/_likert_scale_form.html" %}
+
+    {% endif %}
+{% endif %}

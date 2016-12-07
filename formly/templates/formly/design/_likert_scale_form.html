@@ -1,0 +1,6 @@
+{% load bootstrap %}
+<form method="post" action="{% url "formly_dt_ajax_likert_scale_create" selected_field.pk %}" class="ajax likert-scale-form" data-replace=".likert-scale-form">
+    {% csrf_token %}
+    {{ likert_scale_form|bootstrap }}
+    <button class="btn btn-sm btn-primary">Save</button>
+</form>

@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.9
+---
+
+- make label and help_text textfields
+
+
 0.6
 ---
 

@@ -8,7 +8,9 @@ from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
+
 from django.contrib.auth.models import User
+
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
@@ -250,10 +252,10 @@ class Field(models.Model):
 
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
-    label = models.CharField(max_length=100)
+    label = models.TextField()
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
     scale = models.ForeignKey(LikertScale, default=None, null=True, blank=True, related_name="fields")
-    help_text = models.CharField(max_length=255, blank=True)
+    help_text = models.TextField(blank=True)
     ordinal = models.IntegerField()
     maximum_choices = models.IntegerField(null=True, blank=True)
     # Should this be moved to a separate Constraint model that can also

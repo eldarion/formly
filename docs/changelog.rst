@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.9.1
+-----
+
+- add `fieldtype` to PageForm field widget.attrs
+
+
 0.9
 ---
 

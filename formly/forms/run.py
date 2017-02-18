@@ -46,8 +46,6 @@ class PageForm(FieldResultMixin, forms.Form):
         super(PageForm, self).__init__(*args, **kwargs)
         for field in self.page.fields.all():
             self.fields[field.name] = field.form_field()
-            # Save field_type in widget attrs so presentation can adjust if needed
-            self.fields[field.name].widget.attrs["fieldtype"] = field.field_type
             targets = field.choices.filter(target__isnull=False)
             if targets.count() > 0:
                 self.fields[field.name].widget.attrs["data-reveal"] = ",".join([

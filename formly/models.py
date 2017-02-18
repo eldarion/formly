@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
+from .forms.widgets import LikertSelect
 
 
 @python_2_unicode_compatible
@@ -351,7 +352,10 @@ class Field(models.Model):
             kwargs.update({"widget": forms.Textarea()})
         elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD]:
             field_class = forms.ChoiceField
-            kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
+            if self.field_type == Field.LIKERT_FIELD:
+                kwargs.update({"widget": LikertSelect(), "choices": choices})
+            else:
+                kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
             field_class = forms.DateField
         elif self.field_type == Field.SELECT_FIELD:

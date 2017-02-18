@@ -3,10 +3,10 @@
 ChangeLog
 =========
 
-0.9.1
+0.10
 -----
 
-- add `fieldtype` to PageForm field widget.attrs
+- add Likert-style field widget and presentation
 
 
 0.9

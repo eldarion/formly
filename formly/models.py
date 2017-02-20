@@ -341,11 +341,11 @@ class Field(models.Model):
         else:
             choices = [(x.pk, x.label) for x in self.choices.all()]
 
-        field_class, field_kwargs = self._set_field_class(choices)
+        field_class, field_kwargs = self._get_field_class(choices)
         field = field_class(**field_kwargs)
         return field
 
-    def _set_field_class(self, choices):
+    def _get_field_class(self, choices):
         """
         Set field_class and field kwargs based on field type
         """

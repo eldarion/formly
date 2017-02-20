@@ -88,10 +88,16 @@ likert scale field
 ------------------
 
 The ``likert scale`` field type is a ``django.forms.ChoiceField``,
-populated with choices specified at design time.
-Presentation uses formly/templates/bootstrapform/field.html and sets
-``<ul class="likert-question">`` for CSS design. Here is sample CSS
-which presents a Likert field in familiar horizontal layout:
+populated with choices specified at design time. The field template
+``formly/templates/bootstrapform/field.html`` emits:
+
+    <ul class="likert-question">
+        {{ field }}
+    </ul>
+
+for hooking in CSS design. The following sample CSS presents a Likert field
+in familiar horizontal layout. You should add this (or similar)
+CSS to your project to get Likert-scale presentation.
 
     form .likert-question {
       list-style:none;

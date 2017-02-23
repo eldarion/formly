@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.10
+-----
+
+- add Likert-style field widget and presentation
+
+
 0.9
 ---
 

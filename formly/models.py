@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
+from .forms.widgets import LikertSelect
 
 
 @python_2_unicode_compatible
@@ -340,18 +341,29 @@ class Field(models.Model):
         else:
             choices = [(x.pk, x.label) for x in self.choices.all()]
 
+        field_class, field_kwargs = self._get_field_class(choices)
+        field = field_class(**field_kwargs)
+        return field
+
+    def _get_field_class(self, choices):
+        """
+        Set field_class and field kwargs based on field type
+        """
+        field_class = forms.CharField
         kwargs = dict(
             label=self.label,
             help_text=self.help_text,
             required=self.required
         )
-        field_class = forms.CharField
-
         if self.field_type == Field.TEXT_AREA:
+            field_class = forms.CharField
             kwargs.update({"widget": forms.Textarea()})
         elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD]:
             field_class = forms.ChoiceField
-            kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
+            if self.field_type == Field.LIKERT_FIELD:
+                kwargs.update({"widget": LikertSelect(), "choices": choices})
+            else:
+                kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
             field_class = forms.DateField
         elif self.field_type == Field.SELECT_FIELD:
@@ -370,9 +382,7 @@ class Field(models.Model):
                 "fields_length": self.expected_answers,
                 "widget": MultiTextWidget(widgets_length=self.expected_answers),
             })
-
-        field = field_class(**kwargs)
-        return field
+        return field_class, kwargs
 
 
 @python_2_unicode_compatible

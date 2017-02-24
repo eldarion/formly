@@ -337,7 +337,10 @@ class Field(models.Model):
 
     def form_field(self):
         if self.field_type == Field.LIKERT_FIELD:
-            choices = [(x.pk, x.label) for x in self.scale.choices.all().order_by("score")]
+            if self.scale:
+                choices = [(x.pk, x.label) for x in self.scale.choices.all().order_by("score")]
+            else:
+                choices = []
         else:
             choices = [(x.pk, x.label) for x in self.choices.all()]
 

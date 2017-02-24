@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.10.1
+------
+
+- fix Field.form_field() bug when Likert field has no choices
+
 0.10
 -----
 

@@ -1,10 +1,12 @@
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 
 from ..models import (
     Field,
     Survey,
 )
+
+User = get_user_model()
 
 
 class Tests(TestCase):

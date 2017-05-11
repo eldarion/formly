@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -8,8 +9,6 @@ from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-
-from django.contrib.auth.models import User
 
 from jsonfield import JSONField
 
@@ -52,7 +51,7 @@ class LikertChoice(models.Model):
 @python_2_unicode_compatible
 class Survey(models.Model):
     name = models.CharField(max_length=255)
-    creator = models.ForeignKey(User, related_name="surveys")
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="surveys")
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(default=timezone.now)
     published = models.DateTimeField(null=True, blank=True)
@@ -413,7 +412,7 @@ class FieldChoice(models.Model):
 @python_2_unicode_compatible
 class SurveyResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="survey_results")
-    user = models.ForeignKey(User, related_name="survey_results")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="survey_results")
     date_submitted = models.DateTimeField(default=timezone.now)
 
     def get_absolute_url(self):

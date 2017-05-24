@@ -3,6 +3,12 @@
 ChangeLog
 =========
 
+0.10.2
+------
+
+- fix app to work with a custom user module
+- add missing migration for formly.Field
+
 0.10.1
 ------
 

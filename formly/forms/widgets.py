@@ -7,3 +7,7 @@ class LikertSelect(RadioSelect):
     from "normal" radio selects for presentation purposes.
     """
     pass
+
+
+class RatingSelect(RadioSelect):
+    pass

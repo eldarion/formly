@@ -1,0 +1,11 @@
+<div class="list-group-item">
+    <a class="btn {% if scale == selected_field.scale %}btn-primary{% else %}btn-default{% endif %} btn-xs pull-right ajax" data-method="post" data-replace-closest=".rating-scales" href="{% url "formly_dt_ajax_rating_scale_set" selected_field.pk scale.pk %}">
+        <i class="fa fa-fw fa-check"></i>
+    </a>
+    <div>
+        <div>{{ scale.name }}</div>
+        <small class="text-muted">
+            {{ scale.choices.all|join:", " }}
+        </small>
+    </div>
+</div>

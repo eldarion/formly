@@ -29,6 +29,8 @@ urlpatterns = [
     url(r"^ajax/design/choices/(?P<pk>\d+)/delete/$", design.choice_delete, name="formly_dt_ajax_choice_delete"),
     url(r"^ajax/design/fields/(?P<field_pk>\d+)/likert-scales/(?P<scale_pk>\d+)/set/$", design.likert_scale_set, name="formly_dt_ajax_likert_scale_set"),
     url(r"^ajax/design/fields/(?P<field_pk>\d+)/likert-scales/create/$", design.likert_scale_create, name="formly_dt_ajax_likert_scale_create"),
+    url(r"^ajax/design/fields/(?P<field_pk>\d+)/rating-scales/(?P<scale_pk>\d+)/set/$", design.rating_scale_set, name="formly_dt_ajax_rating_scale_set"),
+    url(r"^ajax/design/fields/(?P<field_pk>\d+)/rating-scales/create/$", design.rating_scale_create, name="formly_dt_ajax_rating_scale_create"),
 
     url(r"^run/survey/(?P<pk>\d+)/$", run.take_survey, name="formly_rt_take_survey"),
     url(r"^run/ajax/choice-question/(?P<pk>\d+)/$", run.choice_question, name="formly_rt_choice_question"),

@@ -12,8 +12,8 @@ except ImportError:
     from django.contrib.auth.decorators import login_required
 
 from formly.utils.views import BaseDeleteView
-from formly.forms.design import SurveyCreateForm, PageUpdateForm, FieldForm, FieldChoiceForm, LikertScaleForm
-from formly.models import Survey, Page, Field, FieldChoice, LikertScale
+from formly.forms.design import SurveyCreateForm, PageUpdateForm, FieldForm, FieldChoiceForm, OrdinalScaleForm
+from formly.models import Survey, Page, Field, FieldChoice, OrdinalScale
 
 
 @login_required
@@ -268,11 +268,11 @@ def field_add_choice(request, pk):
 @login_required
 def likert_scale_set(request, field_pk, scale_pk):
     field = get_object_or_404(Field, pk=field_pk, field_type=Field.LIKERT_FIELD)
-    scale = get_object_or_404(LikertScale, pk=scale_pk)
+    scale = get_object_or_404(OrdinalScale, pk=scale_pk)
     field.scale = scale
     field.save()
     return JsonResponse({
-        "html": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": LikertScale.objects.all()}, request)
+        "html": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT)}, request)
     })
 
 
@@ -280,21 +280,64 @@ def likert_scale_set(request, field_pk, scale_pk):
 @login_required
 def likert_scale_create(request, field_pk):
     field = get_object_or_404(Field, pk=field_pk, field_type=Field.LIKERT_FIELD)
-    likert_scale_form = LikertScaleForm(request.POST)
+    likert_scale_form = OrdinalScaleForm(request.POST, balanced=True)
     if likert_scale_form.is_valid():
-        scale = likert_scale_form.save()
+        scale = likert_scale_form.save(commit=False)
+        scale.kind = OrdinalScale.ORDINAL_KIND_LIKERT
+        scale.save()
         choices = likert_scale_form.cleaned_data["scale"]
-        for index, scale_choice in enumerate(scale.choices.all().order_by("score")):
-            if index < len(choices):
-                scale_choice.label = choices[index]
-                scale_choice.save()
+        max_score = int((len(choices) - 1) / 2)
+        min_score = -max_score
+        for index, score in enumerate(range(min_score, max_score + 1)):
+            scale.choices.create(
+                label=choices[index],
+                score=score
+            )
         field.scale = scale
         field.save()
-        likert_scale_form = LikertScaleForm()
+        likert_scale_form = OrdinalScaleForm()
     return JsonResponse({
         "html": render_to_string("formly/design/_likert_scale_form.html", {"selected_field": field, "likert_scale_form": likert_scale_form}, request),
         "fragments": {
-            ".likert-scales": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": LikertScale.objects.all()}, request)
+            ".likert-scales": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT)}, request)
+        }
+    })
+
+
+@require_POST
+@login_required
+def rating_scale_set(request, field_pk, scale_pk):
+    field = get_object_or_404(Field, pk=field_pk, field_type=Field.RATING_FIELD)
+    scale = get_object_or_404(OrdinalScale, pk=scale_pk)
+    field.scale = scale
+    field.save()
+    return JsonResponse({
+        "html": render_to_string("formly/design/_rating_scales.html", {"selected_field": field, "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)}, request)
+    })
+
+
+@require_POST
+@login_required
+def rating_scale_create(request, field_pk):
+    field = get_object_or_404(Field, pk=field_pk, field_type=Field.RATING_FIELD)
+    rating_scale_form = OrdinalScaleForm(request.POST)
+    if rating_scale_form.is_valid():
+        scale = rating_scale_form.save(commit=False)
+        scale.kind = OrdinalScale.ORDINAL_KIND_RATING
+        scale.save()
+        choices = rating_scale_form.cleaned_data["scale"]
+        for index, choice in enumerate(choices):
+            scale.choices.create(
+                label=choice,
+                score=index
+            )
+        field.scale = scale
+        field.save()
+        rating_scale_form = OrdinalScaleForm()
+    return JsonResponse({
+        "html": render_to_string("formly/design/_rating_scale_form.html", {"selected_field": field, "rating_scale_form": rating_scale_form}, request),
+        "fragments": {
+            ".rating-scales": render_to_string("formly/design/_rating_scales.html", {"selected_field": field, "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)}, request)
         }
     })
 
@@ -316,7 +359,8 @@ def field_update(request, pk):
     else:
         form = FieldForm(instance=field)
         field_choice_form = FieldChoiceForm(prefix="choices")
-        likert_scale_form = LikertScaleForm()
+        likert_scale_form = OrdinalScaleForm()
+        rating_scale_form = OrdinalScaleForm()
 
     return render(request, "formly/design/survey_list.html", {
         "surveys": Survey.objects.all().order_by("-created"),
@@ -328,8 +372,10 @@ def field_update(request, pk):
         "selected_field": field,
         "field_form": form,
         "field_choice_form": field_choice_form,
-        "likert_scales": LikertScale.objects.all(),
-        "likert_scale_form": likert_scale_form
+        "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT),
+        "likert_scale_form": likert_scale_form,
+        "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING),
+        "rating_scale_form": rating_scale_form
     })
 
 

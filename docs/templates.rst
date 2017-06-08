@@ -141,4 +141,4 @@ rendered with the appropriate page for the user.
 :Context: ``field``
 
 This modified ``django-bootstrap-form`` template renders the various field types,
-including special handling for Likert fields.
+including special handling for Likert and Rating fields.

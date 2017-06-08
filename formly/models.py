@@ -13,31 +13,28 @@ from django.utils.encoding import python_2_unicode_compatible
 from jsonfield import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
-from .forms.widgets import LikertSelect
+from .forms.widgets import LikertSelect, RatingSelect
 
 
 @python_2_unicode_compatible
-class LikertScale(models.Model):
+class OrdinalScale(models.Model):
+    ORDINAL_KIND_LIKERT = "likert"
+    ORDINAL_KIND_RATING = "rating"
+    ORDINAL_KIND_CHOICES = [
+        (ORDINAL_KIND_LIKERT, "Likert Scale"),
+        (ORDINAL_KIND_RATING, "Rating Scale")
+    ]
+
     name = models.CharField(max_length=100)
+    kind = models.CharField(max_length=6, choices=ORDINAL_KIND_CHOICES)
 
     def __str__(self):
         return "{} [{}]".format(self.name, ", ".join([str(c) for c in self.choices.order_by("score")]))
 
-    def save(self, *args, **kwargs):
-        new = self.pk is None
-        scale = super(LikertScale, self).save(*args, **kwargs)
-        if new:
-            for score in [-2, -1, 0, 1, 2]:
-                self.choices.create(
-                    label="{}".format(score),
-                    score=score
-                )
-        return scale
-
 
 @python_2_unicode_compatible
-class LikertChoice(models.Model):
-    scale = models.ForeignKey(LikertScale, related_name="choices")
+class OrdinalChoice(models.Model):
+    scale = models.ForeignKey(OrdinalScale, related_name="choices")
     label = models.CharField(max_length=100)
     score = models.IntegerField()
 
@@ -236,6 +233,7 @@ class Field(models.Model):
     BOOLEAN_FIELD = 7
     MULTIPLE_TEXT = 8
     LIKERT_FIELD = 9
+    RATING_FIELD = 10
 
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "Free Response - One Line"),
@@ -247,14 +245,15 @@ class Field(models.Model):
         (MEDIA_FIELD, "File Upload"),
         (BOOLEAN_FIELD, "True/False"),
         (MULTIPLE_TEXT, "Multiple Free Responses - Single Lines"),
-        (LIKERT_FIELD, "Likert Scale")
+        (LIKERT_FIELD, "Likert Scale"),
+        (RATING_FIELD, "Rating Scale")
     ]
 
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
     label = models.TextField()
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
-    scale = models.ForeignKey(LikertScale, default=None, null=True, blank=True, related_name="fields")
+    scale = models.ForeignKey(OrdinalScale, default=None, null=True, blank=True, related_name="fields")
     help_text = models.TextField(blank=True)
     ordinal = models.IntegerField()
     maximum_choices = models.IntegerField(null=True, blank=True)
@@ -335,7 +334,7 @@ class Field(models.Model):
         return self.field_type == Field.MULTIPLE_TEXT
 
     def form_field(self):
-        if self.field_type == Field.LIKERT_FIELD:
+        if self.field_type in [Field.LIKERT_FIELD, Field.RATING_FIELD]:
             if self.scale:
                 choices = [(x.pk, x.label) for x in self.scale.choices.all().order_by("score")]
             else:
@@ -360,10 +359,12 @@ class Field(models.Model):
         if self.field_type == Field.TEXT_AREA:
             field_class = forms.CharField
             kwargs.update({"widget": forms.Textarea()})
-        elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD]:
+        elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
             field_class = forms.ChoiceField
             if self.field_type == Field.LIKERT_FIELD:
                 kwargs.update({"widget": LikertSelect(), "choices": choices})
+            elif self.field_type == Field.RATING_FIELD:
+                kwargs.update({"widget": RatingSelect(), "choices": choices})
             else:
                 kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
         elif self.field_type == Field.DATE_FIELD:
@@ -442,8 +443,8 @@ class FieldResult(models.Model):
                 if self.question.field_type == Field.CHECKBOX_FIELD:
                     return ", ".join([str(FieldChoice.objects.get(pk=int(v))) for v in val])
                 return FieldChoice.objects.get(pk=int(val)).label
-            if self.question.field_type == Field.LIKERT_FIELD:
-                choice = LikertChoice.objects.get(pk=int(val))
+            if self.question.field_type in [Field.LIKERT_FIELD, Field.RATING_FIELD]:
+                choice = OrdinalChoice.objects.get(pk=int(val))
                 return "{} ({})".format(choice.label, choice.score)
         return val
 

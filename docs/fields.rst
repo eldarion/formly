@@ -136,3 +136,15 @@ CSS to your project to get Likert-scale presentation.
     form .likert-question li label {
       width:100%;
     }
+
+
+rating scale field
+------------------
+
+The ``rating scale`` field type is a ``django.forms.ChoiceField``,
+populated with choices specified at design time. The field template
+``formly/templates/bootstrapform/field.html`` emits:
+
+    <ul class="rating-question">
+        {{ field }}
+    </ul>

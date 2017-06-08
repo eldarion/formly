@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.11.0
+------
+
+- add support for Rating field
+
 0.10.2
 ------
 

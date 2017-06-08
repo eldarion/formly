@@ -40,4 +40,15 @@
         {% include "formly/design/_likert_scale_form.html" %}
 
     {% endif %}
+
+    {% if selected_field.field_type == selected_field.RATING_FIELD %}
+        <h3>Rating Scales</h3>
+        <p class="lead">Select a Rating Scale</p>
+
+        {% include "formly/design/_rating_scales.html" %}
+
+        <h4>Add a new Rating scale</h4>
+        {% include "formly/design/_rating_scale_form.html" %}
+
+    {% endif %}
 {% endif %}

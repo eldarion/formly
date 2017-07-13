@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 
@@ -55,5 +56,5 @@ class Tests(TestCase):
             choice_pks.append(choice.pk)
 
         form_field = field.form_field()
-        # Ensure that field validation rejects more than maximum_choices
-        self.assertFalse(form_field.clean(choice_pks))
+        with self.assertRaises(ValidationError):
+            form_field.clean(choice_pks)

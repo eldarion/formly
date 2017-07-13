@@ -12,6 +12,7 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from jsonfield import JSONField
 
+from .fields import LimitedMultipleChoiceField
 from .forms import MultipleTextField, MultiTextWidget
 from .forms.widgets import LikertSelect, RatingSelect
 
@@ -373,8 +374,12 @@ class Field(models.Model):
             field_class = forms.ChoiceField
             kwargs.update({"widget": forms.Select(), "choices": choices})
         elif self.field_type == Field.CHECKBOX_FIELD:
-            field_class = forms.MultipleChoiceField
-            kwargs.update({"widget": forms.CheckboxSelectMultiple(), "choices": choices})
+            field_class = LimitedMultipleChoiceField
+            kwargs.update({
+                "widget": forms.CheckboxSelectMultiple(),
+                "choices": choices,
+                "maximum_choices": self.maximum_choices
+            })
         elif self.field_type == Field.BOOLEAN_FIELD:
             field_class = forms.BooleanField
         elif self.field_type == Field.MEDIA_FIELD:

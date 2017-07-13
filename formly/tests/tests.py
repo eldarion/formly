@@ -4,6 +4,7 @@ from django.test import TestCase
 from ..models import (
     Field,
     Survey,
+    FieldChoice,
 )
 
 User = get_user_model()
@@ -31,3 +32,28 @@ class Tests(TestCase):
         self.assertFalse(field.choices.all())
         # Ensure no exception when field has no choices
         self.assertTrue(field.form_field())
+
+    def test_multiplechoice_field_choice_limit(self):
+        """
+        Enforce maximum_choices on multiple choice fields that allow
+        multiple answers.
+        """
+        survey = Survey.objects.create(
+            name="multiple choice test",
+            creator=self.user,
+        )
+        field = Field.objects.create(
+            survey=survey,
+            label="multiple choice field",
+            field_type=Field.CHECKBOX_FIELD,
+            maximum_choices=1,
+            ordinal=0,
+        )
+        choice_pks = []
+        for label in ["a", "b"]:
+            choice = FieldChoice.objects.create(label=label, field=field)
+            choice_pks.append(choice.pk)
+
+        form_field = field.form_field()
+        # Ensure that field validation rejects more than maximum_choices
+        self.assertFalse(form_field.clean(choice_pks))

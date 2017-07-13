@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class LimitedMultipleChoiceField(forms.MultipleChoiceField):
     def __init__(self, *args, **kwargs):
-        self.maximum_choices = kwargs.pop("maximum_choices", None)
+        self.maximum_choices = kwargs.pop("maximum_choices")
 
         self.default_error_messages.update({
             'maximum_choices': _('You may select at most %(maximum)d choices (%(selected)d selected)')
@@ -17,7 +17,7 @@ class LimitedMultipleChoiceField(forms.MultipleChoiceField):
         super(LimitedMultipleChoiceField, self).validate(value)
 
         selected_count = len(value)
-        if selected_count > self.maximum_choices:
+        if self.maximum_choices and selected_count > self.maximum_choices:
             raise ValidationError(
                 self.error_messages['maximum_choices'],
                 code='maximum_choices',

@@ -1,4 +1,5 @@
 from __future__ import unicode_literals
+import json
 
 from django import forms
 from django.conf import settings
@@ -10,7 +11,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from jsonfield import JSONField
+from django.contrib.postgres.fields import JSONField
 
 from .forms import MultipleTextField, MultiTextWidget
 from .forms.widgets import LikertSelect, RatingSelect
@@ -262,6 +263,8 @@ class Field(models.Model):
     required = models.BooleanField(default=False)
     expected_answers = models.PositiveSmallIntegerField(default=1)
 
+    mapping = JSONField(blank=True, default=dict())
+
     # def clean(self):
     #     super(Field, self).clean()
     #     if self.page is None:
@@ -460,6 +463,14 @@ class SurveyResult(models.Model):
         return self.survey.name
 
 
+class FieldResultQuerySet(models.QuerySet):
+    def mapped(self):
+        return self.filter(answer__mapped__isnull=False)
+
+    def unmapped(self):
+        return self.filter(answer__mapped__isnull=True)
+
+
 @python_2_unicode_compatible
 class FieldResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="results")  # Denorm
@@ -469,9 +480,35 @@ class FieldResult(models.Model):
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
 
+    objects = FieldResultQuerySet.as_manager()
+
+    def save(self, *args, **kwargs):
+        if self.answer['answer']:
+            answer = self.answer['answer']
+            if type(answer) is unicode:
+                try:
+                    answer = json.loads(answer)
+                except:
+                    pass
+            if type(answer) is list:
+                mapping = dict()
+                for ans in answer:
+                    ans = ans.strip().upper()
+                    if ans in self.question.mapping:
+                        mapping[ans] = self.question.mapping[answer]
+                self.answer['mapping'] = mapping
+            else:
+                answer = answer.strip().upper()
+                if answer in self.question.mapping:
+                    self.answer['anser']['mapped'] = self.question.mapping[answer]
+        return super(FieldResult, self).save(*args, **kwargs)
+
     def answer_value(self):
         if self.answer:
-            return self.answer.get("answer")
+            if self.answer.get("mapped"):
+                return self.answer.get("mapped")
+            else:
+                return self.answer.get("answer")
 
     def answer_display(self):
         val = self.answer_value()

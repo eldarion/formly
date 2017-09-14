@@ -1,0 +1,20 @@
+{% extends "site_base.html" %}
+
+{% block content %}
+<h2>Remapping to: {{ remap_answer }}</h2>
+<form class="form" action="{% url 'formly_survey_results_remap' question.pk remap_answer %}" method="post">
+    {% csrf_token %}
+    <ul>
+        {% for result in unmapped_results %}
+        {% if result %}
+            <li style="list-style-type:none">
+                <input type="checkbox" id="mapping_{{ result|slugify }}" name="mapping" value="{{ result|urlencode }}">
+                <label style="display:inline-block" for="mapping_{{ result|slugify }}">{{ result }}</label>
+            </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+    <input type="submit" value="Submit">
+</form>
+
+{% endblock %}

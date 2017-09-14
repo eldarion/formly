@@ -35,5 +35,6 @@ urlpatterns = [
     url(r"^run/survey/(?P<pk>\d+)/$", run.take_survey, name="formly_rt_take_survey"),
     url(r"^run/ajax/choice-question/(?P<pk>\d+)/$", run.choice_question, name="formly_rt_choice_question"),
 
-    url(r"^results/survey/(?P<pk>\d+)/$", results.survey_results, name="formly_survey_results")
+    url(r"^results/survey/(?P<pk>\d+)/$", results.survey_results, name="formly_survey_results"),
+    url(r"^results/remap/(?P<pk>\d+)/(?P<answer_string>[\w\W]+)/$", results.RemapView.as_view(), name="formly_survey_results_remap"),
 ]

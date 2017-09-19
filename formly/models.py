@@ -465,10 +465,10 @@ class SurveyResult(models.Model):
 
 class FieldResultQuerySet(models.QuerySet):
     def mapped(self):
-        return self.filter(answer__mapped__isnull=False)
+        return self.filter(answer__mapping__isnull=False)
 
     def unmapped(self):
-        return self.filter(answer__mapped__isnull=True)
+        return self.filter(answer__mapping__isnull=True)
 
 
 @python_2_unicode_compatible
@@ -482,7 +482,7 @@ class FieldResult(models.Model):
 
     objects = FieldResultQuerySet.as_manager()
 
-    def save(self, *args, **kwargs):
+    def raw_answer(self):
         if self.answer['answer']:
             answer = self.answer['answer']
             if type(answer) is unicode:
@@ -490,17 +490,22 @@ class FieldResult(models.Model):
                     answer = json.loads(answer)
                 except:
                     pass
+            return answer
+
+    def save(self, *args, **kwargs):
+        if self.answer['answer']:
+            answer = self.raw_answer()
             if type(answer) is list:
                 mapping = dict()
                 for ans in answer:
                     ans = ans.strip().upper()
                     if ans in self.question.mapping:
-                        mapping[ans] = self.question.mapping[answer]
+                        mapping[ans] = self.question.mapping[ans]
                 self.answer['mapping'] = mapping
             else:
                 answer = answer.strip().upper()
                 if answer in self.question.mapping:
-                    self.answer['anser']['mapped'] = self.question.mapping[answer]
+                    self.answer['answer']['mapped'] = self.question.mapping[answer]
         return super(FieldResult, self).save(*args, **kwargs)
 
     def answer_value(self):

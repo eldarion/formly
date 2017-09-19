@@ -55,4 +55,6 @@ class RemapView(LoginRequiredMixin, DetailView):
         for result in question.results.all():
             result.save()
 
-        return JsonResponse(question.mapping)
+        if request.is_ajax():
+            return JsonResponse(question.mapping)
+        return HttpResponseRedirect(reverse('formly_survey_results', args=[question.survey.pk]))

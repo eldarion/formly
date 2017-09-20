@@ -357,40 +357,79 @@ class Field(models.Model):
             help_text=self.help_text,
             required=self.required
         )
-        if self.field_type == Field.TEXT_AREA:
-            field_class = forms.CharField
-            kwargs.update({"widget": forms.Textarea()})
-        elif self.field_type in [Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
-            field_class = forms.ChoiceField
-            if self.field_type == Field.LIKERT_FIELD:
-                kwargs.update({"widget": LikertSelect(), "choices": choices})
-            elif self.field_type == Field.RATING_FIELD:
-                kwargs.update({"widget": RatingSelect(), "choices": choices})
-            else:
-                kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
-        elif self.field_type == Field.DATE_FIELD:
-            field_class = forms.DateField
-        elif self.field_type == Field.SELECT_FIELD:
-            field_class = forms.ChoiceField
-            kwargs.update({"widget": forms.Select(), "choices": choices})
-        elif self.field_type == Field.CHECKBOX_FIELD:
-            field_class = LimitedMultipleChoiceField
+        field_class = FIELD_TYPES[self.field_type]["field_class"]
+        kwargs.update(**FIELD_TYPES[self.field_type]["kwargs"])
+
+        if self.field_type in [Field.CHECKBOX_FIELD, Field.SELECT_FIELD, Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
             kwargs.update({
-                "widget": forms.CheckboxSelectMultiple(),
-                "choices": choices,
-                "maximum_choices": self.maximum_choices
+                "choices": choices
             })
-        elif self.field_type == Field.BOOLEAN_FIELD:
-            field_class = forms.BooleanField
-        elif self.field_type == Field.MEDIA_FIELD:
-            field_class = forms.FileField
+            if self.field_type == Field.CHECKBOX_FIELD:
+                kwargs.update({
+                    "maximum_choices": self.maximum_choices
+                })
         elif self.field_type == Field.MULTIPLE_TEXT:
-            field_class = MultipleTextField
             kwargs.update({
                 "fields_length": self.expected_answers,
                 "widget": MultiTextWidget(widgets_length=self.expected_answers),
             })
         return field_class, kwargs
+
+
+FIELD_TYPES = {
+    Field.TEXT_AREA: dict(
+        field_class=forms.CharField,
+        kwargs=dict(
+            widget=forms.Textarea()
+        )
+    ),
+    Field.RADIO_CHOICES: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=forms.RadioSelect()
+        )
+    ),
+    Field.LIKERT_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=LikertSelect()
+        )
+    ),
+    Field.RATING_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=RatingSelect()
+        )
+    ),
+    Field.DATE_FIELD: dict(
+        field_class=forms.DateField,
+        kwargs=dict()
+    ),
+    Field.SELECT_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=forms.Select()
+        )
+    ),
+    Field.CHECKBOX_FIELD: dict(
+        field_class=LimitedMultipleChoiceField,
+        kwargs=dict(
+            widget=forms.CheckboxSelectMultiple()
+        )
+    ),
+    Field.BOOLEAN_FIELD: dict(
+        field_class=forms.BooleanField,
+        kwargs=dict()
+    ),
+    Field.MEDIA_FIELD: dict(
+        field_class=forms.FileField,
+        kwargs=dict()
+    ),
+    Field.MULTIPLE_TEXT: dict(
+        field_class=MultipleTextField,
+        kwargs=dict()
+    )
+}
 
 
 @python_2_unicode_compatible

@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.12.0
+------
+
+- fix broken migrations from 0.11.0
+
 0.11.0
 ------
 

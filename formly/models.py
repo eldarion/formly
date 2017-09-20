@@ -361,13 +361,9 @@ class Field(models.Model):
         kwargs.update(**FIELD_TYPES[self.field_type]["kwargs"])
 
         if self.field_type in [Field.CHECKBOX_FIELD, Field.SELECT_FIELD, Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
-            kwargs.update({
-                "choices": choices
-            })
+            kwargs.update({"choices": choices})
             if self.field_type == Field.CHECKBOX_FIELD:
-                kwargs.update({
-                    "maximum_choices": self.maximum_choices
-                })
+                kwargs.update({"maximum_choices": self.maximum_choices})
         elif self.field_type == Field.MULTIPLE_TEXT:
             kwargs.update({
                 "fields_length": self.expected_answers,

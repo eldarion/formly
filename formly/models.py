@@ -356,8 +356,9 @@ class Field(models.Model):
             help_text=self.help_text,
             required=self.required
         )
-        field_class = FIELD_TYPES[self.field_type]["field_class"]
-        kwargs.update(**FIELD_TYPES[self.field_type]["kwargs"])
+        field_type = FIELD_TYPES.get(self.field_type, {})
+        field_class = field_type.get("field_class", field_class)
+        kwargs.update(**field_type.get("kwargs", {}))
 
         if self.field_type in [Field.CHECKBOX_FIELD, Field.SELECT_FIELD, Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
             kwargs.update({"choices": choices})

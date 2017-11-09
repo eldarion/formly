@@ -34,6 +34,19 @@ class Tests(TestCase):
         # Ensure no exception when field has no choices
         self.assertTrue(field.form_field())
 
+    def test_text_field_form_field_render(self):
+        survey = Survey(
+            name="field mapping test",
+            creator=self.user,
+        )
+        field = Field(
+            survey=survey,
+            label="text field",
+            field_type=Field.TEXT_FIELD,
+        )
+        # Ensure no exception when field is instantiated
+        self.assertTrue(field.form_field())
+
     def test_multiplechoice_field_choice_limit(self):
         """
         Enforce maximum_choices on multiple choice fields that allow

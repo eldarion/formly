@@ -13,8 +13,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from django.contrib.postgres.fields import JSONField
 
-from .forms import MultipleTextField, MultiTextWidget
-from .forms.widgets import LikertSelect, RatingSelect
+from .fields import LimitedMultipleChoiceField, MultipleTextField
+from .forms.widgets import LikertSelect, MultiTextWidget, RatingSelect
 
 
 @python_2_unicode_compatible
@@ -359,11 +359,14 @@ class Field(models.Model):
             help_text=self.help_text,
             required=self.required
         )
-        field_class = FIELD_TYPES[self.field_type]["field_class"]
-        kwargs.update(**FIELD_TYPES[self.field_type]["kwargs"])
+        field_type = FIELD_TYPES.get(self.field_type, {})
+        field_class = field_type.get("field_class", field_class)
+        kwargs.update(**field_type.get("kwargs", {}))
 
         if self.field_type in [Field.CHECKBOX_FIELD, Field.SELECT_FIELD, Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
             kwargs.update({"choices": choices})
+            if self.field_type == Field.CHECKBOX_FIELD:
+                kwargs.update({"maximum_choices": self.maximum_choices})
         elif self.field_type == Field.MULTIPLE_TEXT:
             kwargs.update({
                 "fields_length": self.expected_answers,
@@ -408,7 +411,7 @@ FIELD_TYPES = {
         )
     ),
     Field.CHECKBOX_FIELD: dict(
-        field_class=forms.MultipleChoiceField,
+        field_class=LimitedMultipleChoiceField,
         kwargs=dict(
             widget=forms.CheckboxSelectMultiple()
         )

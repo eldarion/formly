@@ -3,6 +3,11 @@
 ChangeLog
 =========
 
+0.13.0
+------
+- fix field mapping bug (#30)
+- improve output of MultipleTextField widget (#20)
+
 0.12.0
 ------
 

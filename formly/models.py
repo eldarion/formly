@@ -12,9 +12,8 @@ from django.utils.encoding import python_2_unicode_compatible
 
 from jsonfield import JSONField
 
-from .fields import LimitedMultipleChoiceField
-from .forms import MultipleTextField, MultiTextWidget
-from .forms.widgets import LikertSelect, RatingSelect
+from .fields import LimitedMultipleChoiceField, MultipleTextField
+from .forms.widgets import LikertSelect, MultiTextWidget, RatingSelect
 
 
 @python_2_unicode_compatible

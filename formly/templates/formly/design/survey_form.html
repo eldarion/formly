@@ -1,6 +1,6 @@
 {% extends "site_base.html" %}
 
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% block head_title %}Create Survey{% endblock %}
 
@@ -9,7 +9,7 @@
         <legend>Create a new survey</legend>
         {% csrf_token %}
         <fieldset>
-            {{ form|as_bootstrap }}
+            {{ form|bootstrap }}
         </fieldset>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Create</button>

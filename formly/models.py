@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 from django import forms
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -8,16 +9,47 @@ from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
-from django.contrib.auth.models import User
+
 from jsonfield import JSONField
 
+from .fields import LimitedMultipleChoiceField
 from .forms import MultipleTextField, MultiTextWidget
+from .forms.widgets import LikertSelect, RatingSelect
+
+
+@python_2_unicode_compatible
+class OrdinalScale(models.Model):
+    ORDINAL_KIND_LIKERT = "likert"
+    ORDINAL_KIND_RATING = "rating"
+    ORDINAL_KIND_CHOICES = [
+        (ORDINAL_KIND_LIKERT, "Likert Scale"),
+        (ORDINAL_KIND_RATING, "Rating Scale")
+    ]
+
+    name = models.CharField(max_length=100)
+    kind = models.CharField(max_length=6, choices=ORDINAL_KIND_CHOICES)
+
+    def __str__(self):
+        return "{} [{}]".format(self.name, ", ".join([str(c) for c in self.choices.order_by("score")]))
+
+
+@python_2_unicode_compatible
+class OrdinalChoice(models.Model):
+    scale = models.ForeignKey(OrdinalScale, related_name="choices")
+    label = models.CharField(max_length=100)
+    score = models.IntegerField()
+
+    def __str__(self):
+        return "{} ({})".format(self.label, self.score)
+
+    class Meta:
+        unique_together = [("scale", "score"), ("scale", "label")]
 
 
 @python_2_unicode_compatible
 class Survey(models.Model):
     name = models.CharField(max_length=255)
-    creator = models.ForeignKey(User, related_name="surveys")
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="surveys")
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(default=timezone.now)
     published = models.DateTimeField(null=True, blank=True)
@@ -134,7 +166,7 @@ class Page(models.Model):
             return "Page %d" % self.page_num
 
     def get_absolute_url(self):
-        return reverse("formly_dt_page_update", kwargs={"pk": self.pk})
+        return reverse("formly_dt_page_detail", kwargs={"pk": self.pk})
 
     def move_up(self):
         try:
@@ -201,6 +233,8 @@ class Field(models.Model):
     MEDIA_FIELD = 6
     BOOLEAN_FIELD = 7
     MULTIPLE_TEXT = 8
+    LIKERT_FIELD = 9
+    RATING_FIELD = 10
 
     FIELD_TYPE_CHOICES = [
         (TEXT_FIELD, "Free Response - One Line"),
@@ -212,13 +246,16 @@ class Field(models.Model):
         (MEDIA_FIELD, "File Upload"),
         (BOOLEAN_FIELD, "True/False"),
         (MULTIPLE_TEXT, "Multiple Free Responses - Single Lines"),
+        (LIKERT_FIELD, "Likert Scale"),
+        (RATING_FIELD, "Rating Scale")
     ]
 
     survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
     page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
-    label = models.CharField(max_length=100)
+    label = models.TextField()
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
-    help_text = models.CharField(max_length=255, blank=True)
+    scale = models.ForeignKey(OrdinalScale, default=None, null=True, blank=True, related_name="fields")
+    help_text = models.TextField(blank=True)
     ordinal = models.IntegerField()
     maximum_choices = models.IntegerField(null=True, blank=True)
     # Should this be moved to a separate Constraint model that can also
@@ -298,40 +335,98 @@ class Field(models.Model):
         return self.field_type == Field.MULTIPLE_TEXT
 
     def form_field(self):
-        choices = [(x.pk, x.label) for x in self.choices.all()]
+        if self.field_type in [Field.LIKERT_FIELD, Field.RATING_FIELD]:
+            if self.scale:
+                choices = [(x.pk, x.label) for x in self.scale.choices.all().order_by("score")]
+            else:
+                choices = []
+        else:
+            choices = [(x.pk, x.label) for x in self.choices.all()]
+
+        field_class, field_kwargs = self._get_field_class(choices)
+        field = field_class(**field_kwargs)
+        return field
+
+    def _get_field_class(self, choices):
+        """
+        Set field_class and field kwargs based on field type
+        """
+        field_class = forms.CharField
         kwargs = dict(
             label=self.label,
             help_text=self.help_text,
             required=self.required
         )
-        field_class = forms.CharField
+        field_type = FIELD_TYPES.get(self.field_type, {})
+        field_class = field_type.get("field_class", field_class)
+        kwargs.update(**field_type.get("kwargs", {}))
 
-        if self.field_type == Field.TEXT_AREA:
-            kwargs.update({"widget": forms.Textarea()})
-        elif self.field_type == Field.RADIO_CHOICES:
-            field_class = forms.ChoiceField
-            kwargs.update({"widget": forms.RadioSelect(), "choices": choices})
-        elif self.field_type == Field.DATE_FIELD:
-            field_class = forms.DateField
-        elif self.field_type == Field.SELECT_FIELD:
-            field_class = forms.ChoiceField
-            kwargs.update({"widget": forms.Select(), "choices": choices})
-        elif self.field_type == Field.CHECKBOX_FIELD:
-            field_class = forms.MultipleChoiceField
-            kwargs.update({"widget": forms.CheckboxSelectMultiple(), "choices": choices})
-        elif self.field_type == Field.BOOLEAN_FIELD:
-            field_class = forms.BooleanField
-        elif self.field_type == Field.MEDIA_FIELD:
-            field_class = forms.FileField
+        if self.field_type in [Field.CHECKBOX_FIELD, Field.SELECT_FIELD, Field.RADIO_CHOICES, Field.LIKERT_FIELD, Field.RATING_FIELD]:
+            kwargs.update({"choices": choices})
+            if self.field_type == Field.CHECKBOX_FIELD:
+                kwargs.update({"maximum_choices": self.maximum_choices})
         elif self.field_type == Field.MULTIPLE_TEXT:
-            field_class = MultipleTextField
             kwargs.update({
                 "fields_length": self.expected_answers,
                 "widget": MultiTextWidget(widgets_length=self.expected_answers),
             })
+        return field_class, kwargs
 
-        field = field_class(**kwargs)
-        return field
+
+FIELD_TYPES = {
+    Field.TEXT_AREA: dict(
+        field_class=forms.CharField,
+        kwargs=dict(
+            widget=forms.Textarea()
+        )
+    ),
+    Field.RADIO_CHOICES: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=forms.RadioSelect()
+        )
+    ),
+    Field.LIKERT_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=LikertSelect()
+        )
+    ),
+    Field.RATING_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=RatingSelect()
+        )
+    ),
+    Field.DATE_FIELD: dict(
+        field_class=forms.DateField,
+        kwargs=dict()
+    ),
+    Field.SELECT_FIELD: dict(
+        field_class=forms.ChoiceField,
+        kwargs=dict(
+            widget=forms.Select()
+        )
+    ),
+    Field.CHECKBOX_FIELD: dict(
+        field_class=LimitedMultipleChoiceField,
+        kwargs=dict(
+            widget=forms.CheckboxSelectMultiple()
+        )
+    ),
+    Field.BOOLEAN_FIELD: dict(
+        field_class=forms.BooleanField,
+        kwargs=dict()
+    ),
+    Field.MEDIA_FIELD: dict(
+        field_class=forms.FileField,
+        kwargs=dict()
+    ),
+    Field.MULTIPLE_TEXT: dict(
+        field_class=MultipleTextField,
+        kwargs=dict()
+    )
+}
 
 
 @python_2_unicode_compatible
@@ -359,7 +454,7 @@ class FieldChoice(models.Model):
 @python_2_unicode_compatible
 class SurveyResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="survey_results")
-    user = models.ForeignKey(User, related_name="survey_results")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="survey_results")
     date_submitted = models.DateTimeField(default=timezone.now)
 
     def get_absolute_url(self):
@@ -384,10 +479,14 @@ class FieldResult(models.Model):
 
     def answer_display(self):
         val = self.answer_value()
-        if val and self.question.needs_choices:
-            if self.question.field_type == Field.CHECKBOX_FIELD:
-                return u", ".join([unicode(FieldChoice.objects.get(pk=int(v))) for v in val])
-            return FieldChoice.objects.get(pk=int(val)).label
+        if val:
+            if self.question.needs_choices:
+                if self.question.field_type == Field.CHECKBOX_FIELD:
+                    return ", ".join([str(FieldChoice.objects.get(pk=int(v))) for v in val])
+                return FieldChoice.objects.get(pk=int(val)).label
+            if self.question.field_type in [Field.LIKERT_FIELD, Field.RATING_FIELD]:
+                choice = OrdinalChoice.objects.get(pk=int(val))
+                return "{} ({})".format(choice.label, choice.score)
         return val
 
     def __str__(self):

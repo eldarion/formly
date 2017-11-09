@@ -1,0 +1,13 @@
+{% if selected_survey %}
+<h2>Pages</h2>
+<form action="{% url "formly_dt_page_create" pk=selected_survey.pk %}" method="post">
+    {% csrf_token %}
+    <button class="btn btn-mini btn-block btn-default"><i class="fa fa-fw fa-plus"></i> Add Page</button>
+</form>
+<hr />
+<div class="list-group">
+    {% for page in pages %}
+        <a class="list-group-item {% if page == selected_page %}active{% endif %}" href="{{ page.get_absolute_url }}">{{ page.label }}</a>
+    {% endfor %}
+</div>
+{% endif %}

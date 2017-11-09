@@ -1,6 +1,6 @@
 {% extends "formly/design/survey_edit_base.html" %}
 
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% block body %}
 
@@ -12,7 +12,7 @@
 <form action="{% url "formly_dt_field_update" pk=field.pk %}" method="post" class="well">
     {% csrf_token %}
     <fieldset>
-        {{ form|as_bootstrap }}
+        {{ form|bootstrap }}
     </fieldset>
     <div class="form-actions">
         <input type="hidden" name="action" value="field_update" />
@@ -62,7 +62,7 @@
         <form action="{% url "formly_dt_field_update" pk=field.pk %}" method="post">
             {% csrf_token %}
             <div class="modal-body">
-                {{ field_choice_form|as_bootstrap }}
+                {{ field_choice_form|bootstrap }}
             </div>
             <div class="modal-footer">
                 <input type="hidden" name="action" value="choice_add" />

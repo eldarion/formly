@@ -1,4 +1,4 @@
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% if form.is_multipart %}
 <form action="" method="post" enctype="multipart/form-data">
@@ -8,7 +8,7 @@
     <legend>{{ page }}</legend>
     {% csrf_token %}
     <fieldset>
-        {{ form|as_bootstrap }}
+        {{ form|bootstrap }}
     </fieldset>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Submit</button>

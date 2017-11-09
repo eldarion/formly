@@ -1,6 +1,6 @@
 from django import forms
 
-from formly.models import Survey, Page, Field, FieldChoice
+from formly.models import Survey, Page, Field, FieldChoice, OrdinalScale
 
 
 class SurveyCreateForm(forms.ModelForm):
@@ -29,6 +29,31 @@ class PageUpdateForm(forms.ModelForm):
         model = Page
         fields = [
             "subtitle"
+        ]
+
+
+class OrdinalScaleForm(forms.ModelForm):
+
+    scale = forms.CharField(required=True)
+
+    def __init__(self, *args, **kwargs):
+        self.balanced = kwargs.pop("balanced", False)
+        super(OrdinalScaleForm, self).__init__(*args, **kwargs)
+
+    def clean_scale(self):
+        scale = self.cleaned_data["scale"]
+        if not scale:
+            raise forms.ValidationError("You must provide scale values, delimited by commas.")
+        scale_choices = [s.strip() for s in scale.split(",")]
+        if self.balanced and len(scale_choices) % 2 != 1:
+            raise forms.ValidationError("A Likert scale must have an odd number of choices.")
+        return scale_choices
+
+    class Meta:
+        model = OrdinalScale
+        fields = [
+            "name",
+            "scale"
         ]
 
 

@@ -15,7 +15,7 @@ setup(
     description="a dynamic form generator",
     name="formly",
     long_description=read("README.rst"),
-    version="0.7",
+    version="0.12.0",
     url="https://github.com/eldarion/formly",
     license="BSD",
     packages=find_packages(),

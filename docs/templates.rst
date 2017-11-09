@@ -133,3 +133,12 @@ A template for displaying the results of a given survey.
 
 This template is rendered for the end user to complete a particular survey, it is always
 rendered with the appropriate page for the user.
+
+
+``formly/bootstrapform/field.html``
+------------------------
+
+:Context: ``field``
+
+This modified ``django-bootstrap-form`` template renders the various field types,
+including special handling for Likert and Rating fields.

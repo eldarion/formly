@@ -1,6 +1,6 @@
 {% extends "site_base.html" %}
 
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% block body %}
     <header class="jumbotron subhead" id="overview">
@@ -12,7 +12,7 @@
         <legeng>{{ survey }}</legend>
         {% csrf_token %}
         <fieldset>
-            {{ form|as_bootstrap }}
+            {{ form|bootstrap }}
         </fieldset>
         <div class="form-actions">
             <button type="submit" class="btn btn-danger">Delete</button>

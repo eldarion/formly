@@ -1,3 +1,9 @@
 docs/_build
 formly.egg-info
 dist
+*.pyc
+.coverage
+.tox
+.python-version
+.eggs/
+

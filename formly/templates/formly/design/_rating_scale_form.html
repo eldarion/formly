@@ -1,0 +1,6 @@
+{% load bootstrap %}
+<form method="post" action="{% url "formly_dt_ajax_rating_scale_create" selected_field.pk %}" class="ajax rating-scale-form" data-replace=".rating-scale-form">
+    {% csrf_token %}
+    {{ rating_scale_form|bootstrap }}
+    <button class="btn btn-sm btn-primary">Save</button>
+</form>

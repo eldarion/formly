@@ -3,6 +3,39 @@
 ChangeLog
 =========
 
+0.12.0
+------
+
+- fix broken migrations from 0.11.0
+
+0.11.0
+------
+
+- add support for Rating field
+
+0.10.2
+------
+
+- fix app to work with a custom user module
+- add missing migration for formly.Field
+
+0.10.1
+------
+
+- fix Field.form_field() bug when Likert field has no choices
+
+0.10
+-----
+
+- add Likert-style field widget and presentation
+
+
+0.9
+---
+
+- make label and help_text textfields
+
+
 0.6
 ---
 

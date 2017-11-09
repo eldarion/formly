@@ -1,0 +1,9 @@
+{% load bootstrap %}
+
+<form action="{% url "formly_dt_survey_create" %}" method="post" class="survey-form">
+    {% csrf_token %}
+    {{ survey_form.name|bootstrap }}
+    <div class="text-right">
+        <button class="btn btn-primary btn-sm">Create</button>
+    </div>
+</form>

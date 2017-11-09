@@ -1,7 +1,7 @@
-from pinax.apps.account import auth_backends
+from django.contrib.auth.backends import ModelBackend
 
 
-class AuthenticationBackend(auth_backends.AuthenticationBackend):
+class AuthenticationBackend(ModelBackend):
     """
     Permissions that do not receive an object:
 

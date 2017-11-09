@@ -1,6 +1,6 @@
 {% extends "formly/design/survey_edit_base.html" %}
 
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% block body %}
     <header class="jumbotron subhead" id="overview">
@@ -11,7 +11,7 @@
 <form action="{% url "formly_dt_page_update" pk=page.pk %}" method="post" class="well">
     {% csrf_token %}
     <fieldset>
-        {{ form|as_bootstrap }}
+        {{ form|bootstrap }}
     </fieldset>
     <div class="form-actions">
         <input type="hidden" name="action" value="page_update" />
@@ -81,7 +81,7 @@
         {% csrf_token %}
         <input type="hidden" name="action" value="field_add" />
         <div class="modal-body">
-            {{ field_form|as_bootstrap }}
+            {{ field_form|bootstrap }}
         </div>
         <div class="modal-footer">
             <button type="submit" class="btn btn-primary">Save</button>

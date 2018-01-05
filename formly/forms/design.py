@@ -1,6 +1,7 @@
 from django import forms
 
-from formly.models import Survey, Page, Field, FieldChoice, OrdinalScale
+from ..hooks import hookset
+from ..models import Survey, Page, Field, FieldChoice, OrdinalScale
 
 
 class SurveyCreateForm(forms.ModelForm):
@@ -58,6 +59,10 @@ class OrdinalScaleForm(forms.ModelForm):
 
 
 class FieldForm(forms.ModelForm):
+
+    def __init__(self, *args, **kwargs):
+        super(FieldForm, self).__init__(*args, **kwargs)
+        self.fields["field_type"].choices = hookset.field_type_choices
 
     class Meta:
         model = Field

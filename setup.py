@@ -26,6 +26,7 @@ setup(
     tests_require=[],
     install_requires=[
         "jsonfield>=1.0.3",
+        "django-appconf>=1.0.2",
     ],
     classifiers=[
         "Development Status :: 3 - Alpha",

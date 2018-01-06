@@ -3,6 +3,10 @@
 ChangeLog
 =========
 
+0.14.0
+------
+- add hookset to support customizing available field type choices when designing a survey
+
 0.13.0
 ------
 - fix field mapping bug (#30)

@@ -35,4 +35,4 @@ class MultipleTextField(forms.MultiValueField):
         self.fields_length = fields_length
 
     def compress(self, data_list):
-        return json.dumps(data_list)
+        return data_list

@@ -507,10 +507,7 @@ class FieldResult(models.Model):
 
     def answer_value(self):
         if self.answer:
-            if self.answer.get("mapped"):
-                return self.answer.get("mapped")
-            else:
-                return self.answer.get("answer")
+            return self.answer.get("answer")
 
     def answer_display(self):
         val = self.answer_value()

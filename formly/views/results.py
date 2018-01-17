@@ -43,10 +43,11 @@ class RemapView(LoginRequiredMixin, DetailView):
         question = self.get_object()
         mapping = dict([(unquote(remapped_answer), answer_string) for remapped_answer in remapped_answers])
 
-        for mapped_answer in question.mapping.keys():
-            answer = question.mapping[mapped_answer]
-            if answer in answer_string:
-                del question.mapping[mapped_answer]
+        for original_answer in question.mapping.keys():
+            mapped_answer = question.mapping[original_answer]
+            if mapped_answer == answer_string:
+                # remove the entry from question.mapping
+                del question.mapping[original_answer]
 
         question.mapping.update(mapping)
         question.save()

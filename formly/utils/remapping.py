@@ -1,6 +1,3 @@
-import json
-
-
 def _normalize_answer(answer):
     answer = answer.strip().upper()
     return " ".join([a for a in answer.split(" ") if a])
@@ -11,13 +8,7 @@ def create_answer_list(fieldresults):
     answer_set = set()
 
     for result in fieldresults:
-        if type(result.answer['answer']) is not dict:
-            answers = json.loads(result.answer['answer'])
-        else:
-            answers = result.answer['answer']
-
-        if type(answers) is unicode:
-            answers = [answers]
+        answers = result.answer['answer']
 
         for answer in answers:
             normalized_answer = _normalize_answer(answer)

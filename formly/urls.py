@@ -1,9 +1,6 @@
 from django.conf.urls import url
 
-from formly.views import design
-from formly.views import results
-from formly.views import run
-
+from formly.views import design, results, run
 
 urlpatterns = [
     url(r"^design/$", design.survey_list, name="formly_dt_survey_list"),

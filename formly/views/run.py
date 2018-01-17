@@ -1,17 +1,15 @@
 import json
 
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template import RequestContext
 from django.template.loader import render_to_string
 
-from django.contrib.auth.decorators import login_required
-
 from formly.forms.run import PageForm, TargetForm
-from formly.models import Survey, Field, FieldChoice
+from formly.models import Field, FieldChoice, Survey
 from formly.utils.importing import load_path_attr
-
 
 COMPLETE_REDIRECT_CALLBACK = load_path_attr(getattr(
     settings,

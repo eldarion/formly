@@ -475,30 +475,14 @@ class FieldResult(models.Model):
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
 
-    def raw_answer(self):
-        if self.answer["answer"]:
-            answer = self.answer["answer"]
-            if type(answer) is unicode:
-                try:
-                    answer = json.loads(answer)
-                except:
-                    pass
-            return answer
-
     def _update_mapping(self):
-        if self.answer["answer"]:
-            answer = self.raw_answer()
-            if type(answer) is list:
-                mapping = dict()
-                for ans in answer:
-                    ans = ans.strip().upper()
-                    if ans in self.question.mapping:
-                        mapping[ans] = self.question.mapping[ans]
-                self.answer["mapping"] = mapping
-            else:
-                answer = answer.strip().upper()
-                if answer in self.question.mapping:
-                    self.answer["answer"]["mapped"] = self.question.mapping[answer]
+        answer = self.answer["answer"]
+        mapping = dict()
+        for ans in answer:
+            ans = ans.strip().upper()
+            if ans in self.question.mapping:
+                mapping[ans] = self.question.mapping[ans]
+        self.answer["mapping"] = mapping
 
     def save(self, *args, **kwargs):
         if self.question.field_type == Field.MULTIPLE_TEXT:

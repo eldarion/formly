@@ -1,5 +1,3 @@
-import json
-
 from django.forms import TextInput
 from django.forms.widgets import MultiWidget, RadioSelect
 from django.template.loader import render_to_string

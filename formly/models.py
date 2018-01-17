@@ -485,7 +485,7 @@ class FieldResult(models.Model):
                     pass
             return answer
 
-    def save(self, *args, **kwargs):
+    def _update_mapping(self):
         if self.answer["answer"]:
             answer = self.raw_answer()
             if type(answer) is list:
@@ -499,6 +499,10 @@ class FieldResult(models.Model):
                 answer = answer.strip().upper()
                 if answer in self.question.mapping:
                     self.answer["answer"]["mapped"] = self.question.mapping[answer]
+
+    def save(self, *args, **kwargs):
+        if self.question.field_type == Field.MULTIPLE_TEXT:
+            self._update_mapping()
         return super(FieldResult, self).save(*args, **kwargs)
 
     def answer_value(self):

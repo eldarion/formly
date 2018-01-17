@@ -1,5 +1,4 @@
 from __future__ import unicode_literals
-import json
 
 from django import forms
 from django.conf import settings

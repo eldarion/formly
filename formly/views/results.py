@@ -1,4 +1,3 @@
-import json
 from urllib import unquote
 
 from django.core.exceptions import PermissionDenied

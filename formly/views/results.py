@@ -27,20 +27,20 @@ def survey_results(request, pk):
 
 class RemapView(LoginRequiredMixin, DetailView):
     model = Field
-    context_object_name = 'question'
+    context_object_name = "question"
     template_name = "formly/results/remap.html"
 
     def get_context_data(self, **kwargs):
         context = super(RemapView, self).get_context_data(**kwargs)
 
         field_results = self.object.results.all()
-        context['unmapped_results'] = sorted(create_answer_list(field_results))
-        context['remap_answer'] = unquote(self.kwargs.get('answer_string'))
+        context["unmapped_results"] = sorted(create_answer_list(field_results))
+        context["remap_answer"] = unquote(self.kwargs.get("answer_string"))
         return context
 
     def post(self, request, *args, **kwargs):
-        remapped_answers = request.POST.getlist('mapping')
-        answer_string = self.kwargs.get('answer_string')
+        remapped_answers = request.POST.getlist("mapping")
+        answer_string = self.kwargs.get("answer_string")
         question = self.get_object()
         mapping = dict([(unquote(remapped_answer), answer_string) for remapped_answer in remapped_answers])
 
@@ -51,9 +51,9 @@ class RemapView(LoginRequiredMixin, DetailView):
 
         question.mapping.update(mapping)
         question.save()
-        for result in question.results.all():
+        for result in question.results.all().select_related("question"):
             result.save()
 
         if request.is_ajax():
             return JsonResponse(question.mapping)
-        return HttpResponseRedirect(reverse('formly_survey_results', args=[question.survey.pk]))
+        return HttpResponseRedirect(reverse("formly_survey_results", args=[question.survey.pk]))

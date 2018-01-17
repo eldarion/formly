@@ -476,8 +476,8 @@ class FieldResult(models.Model):
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
 
     def raw_answer(self):
-        if self.answer['answer']:
-            answer = self.answer['answer']
+        if self.answer["answer"]:
+            answer = self.answer["answer"]
             if type(answer) is unicode:
                 try:
                     answer = json.loads(answer)
@@ -486,7 +486,7 @@ class FieldResult(models.Model):
             return answer
 
     def save(self, *args, **kwargs):
-        if self.answer['answer']:
+        if self.answer["answer"]:
             answer = self.raw_answer()
             if type(answer) is list:
                 mapping = dict()
@@ -494,11 +494,11 @@ class FieldResult(models.Model):
                     ans = ans.strip().upper()
                     if ans in self.question.mapping:
                         mapping[ans] = self.question.mapping[ans]
-                self.answer['mapping'] = mapping
+                self.answer["mapping"] = mapping
             else:
                 answer = answer.strip().upper()
                 if answer in self.question.mapping:
-                    self.answer['answer']['mapped'] = self.question.mapping[answer]
+                    self.answer["answer"]["mapped"] = self.question.mapping[answer]
         return super(FieldResult, self).save(*args, **kwargs)
 
     def answer_value(self):

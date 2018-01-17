@@ -1,15 +1,14 @@
 from urllib import unquote
 
-from django.core.exceptions import PermissionDenied
-from django.shortcuts import render, get_object_or_404
-from django.views.generic import DetailView
-from django.http import HttpResponseRedirect, JsonResponse
-from django.urls import reverse
-
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
+from django.views.generic import DetailView
 
-from formly.models import Survey, Field
+from formly.models import Field, Survey
 from formly.utils.remapping import create_answer_list
 
 

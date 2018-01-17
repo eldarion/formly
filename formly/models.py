@@ -11,7 +11,7 @@ from django.template.defaultfilters import slugify
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
-from django.contrib.postgres.fields import JSONField
+from jsonfield import JSONField
 
 from .fields import LimitedMultipleChoiceField, MultipleTextField
 from .forms.widgets import LikertSelect, MultiTextWidget, RatingSelect
@@ -466,14 +466,6 @@ class SurveyResult(models.Model):
         return self.survey.name
 
 
-class FieldResultQuerySet(models.QuerySet):
-    def mapped(self):
-        return self.filter(answer__mapping__isnull=False)
-
-    def unmapped(self):
-        return self.filter(answer__mapping__isnull=True)
-
-
 @python_2_unicode_compatible
 class FieldResult(models.Model):
     survey = models.ForeignKey(Survey, related_name="results")  # Denorm
@@ -482,8 +474,6 @@ class FieldResult(models.Model):
     question = models.ForeignKey(Field, related_name="results")
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
-
-    objects = FieldResultQuerySet.as_manager()
 
     def raw_answer(self):
         if self.answer['answer']:

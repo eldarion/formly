@@ -1,5 +1,3 @@
-from urllib import unquote
-
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -47,13 +45,13 @@ class RemapView(LoginRequiredMixin, DetailView):
 
     def post(self, request, *args, **kwargs):
         remapped_answers = request.POST.getlist("mapping")
-        answer_string = self.kwargs.get("answer_string")
         question = self.get_object()
-        mapping = dict([(unquote(remapped_answer), answer_string) for remapped_answer in remapped_answers])
+        mapping = dict([(remapped_answer, self.answer_string) for remapped_answer in remapped_answers])
 
+        # # @@@ is this block even needed if we have proper validation into the mapping?
         for original_answer in question.mapping.keys():
             mapped_answer = question.mapping[original_answer]
-            if mapped_answer == answer_string:
+            if mapped_answer == self.answer_string:
                 # remove the entry from question.mapping
                 del question.mapping[original_answer]
 

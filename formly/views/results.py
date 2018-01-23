@@ -48,11 +48,10 @@ class RemapView(LoginRequiredMixin, DetailView):
         question = self.get_object()
         mapping = dict([(remapped_answer, self.answer_string) for remapped_answer in remapped_answers])
 
-        # # @@@ is this block even needed if we have proper validation into the mapping?
         for original_answer in question.mapping.keys():
             mapped_answer = question.mapping[original_answer]
             if mapped_answer == self.answer_string:
-                # remove the entry from question.mapping
+                # remove previous mapping from question.mapping
                 del question.mapping[original_answer]
 
         question.mapping.update(mapping)

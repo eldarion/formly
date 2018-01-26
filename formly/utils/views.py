@@ -1,8 +1,9 @@
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView
+
+from ...compat import reverse
 
 
 def cbv_decorator(decorator):

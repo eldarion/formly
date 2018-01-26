@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.utils.decorators import method_decorator
 from django.views.generic import DeleteView
 
-from ...compat import reverse
+from formly.compat import reverse
 
 
 def cbv_decorator(decorator):

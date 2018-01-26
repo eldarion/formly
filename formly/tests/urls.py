@@ -1,5 +1,5 @@
-from django.conf.urls import include
+from django.conf.urls import include, url
 
 urlpatterns = [
-    (r"^", include("formly.urls")),
+    url(r"^", include("formly.urls")),
 ]

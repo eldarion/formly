@@ -1,12 +1,8 @@
-from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 
-from ..models import (
-    Field,
-    Survey,
-    FieldChoice,
-)
+from ..models import Field, FieldChoice, Survey
 
 User = get_user_model()
 

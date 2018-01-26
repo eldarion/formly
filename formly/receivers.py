@@ -1,5 +1,5 @@
-from django.dispatch import receiver
 from django.db.models import signals
+from django.dispatch import receiver
 
 from formly.models import Survey
 

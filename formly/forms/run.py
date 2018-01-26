@@ -1,6 +1,6 @@
 from django import forms
 
-from formly.models import SurveyResult, Field, FieldResult
+from formly.models import Field, FieldResult, SurveyResult
 
 
 class FieldResultMixin(object):

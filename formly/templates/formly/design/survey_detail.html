@@ -5,7 +5,7 @@
 {% block body %}
     <ul class="breadcrumb">
         <li>
-            <a href="{% url "formly_dt_survey_list" %}">Surveys</a> <span class="divider">/</span>
+            <a href="{% url "formly:dt_survey_list" %}">Surveys</a> <span class="divider">/</span>
         </li>
         <li class="active">{{ survey.name }}</li>
     </ul>
@@ -17,7 +17,7 @@
     </header>
 
     <a class="btn" href="{{ survey.first_page.get_absolute_url }}">Edit</a>
-    <a class="btn btn-danger" href="{% url "formly_dt_survey_delete" pk=survey.pk %}">Delete</a>
+    <a class="btn btn-danger" href="{% url "formly:dt_survey_delete" pk=survey.pk %}">Delete</a>
 {% endblock %}
 
 
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="http://www.appelsiini.net/download/jquery.jeditable.mini.js"></script>
     <script type="text/javascript">
         $(function() {
-            $(".survey-name-edit").editable("{% url "formly_dt_survey_change_name" pk=survey.pk %}", {
+            $(".survey-name-edit").editable("{% url "formly:dt_survey_change_name" pk=survey.pk %}", {
                 name: "name",
                 indicator: "Saving...",
                 tooltip: "Click to edit...",

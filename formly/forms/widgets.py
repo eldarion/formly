@@ -17,7 +17,9 @@ class MultiTextWidget(MultiWidget):
     def format_output(self, rendered_widgets):
         return render_to_string(
             "formly/run/_multiple_input.html",
-            {"inputs": rendered_widgets}
+            context={
+                "inputs": rendered_widgets
+            }
         )
 
 

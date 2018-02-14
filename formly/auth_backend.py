@@ -38,7 +38,7 @@ class AuthenticationBackend(ModelBackend):
             "formly.view_results"
         ]
         if perm in permissions:
-            return user.is_authenticated()
+            return user.is_authenticated
         if perm in survey_permissions:
             return obj and user == obj.creator
         if perm == "formly.delete_object":

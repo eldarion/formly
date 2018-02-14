@@ -9,7 +9,7 @@
   <p class="lead">Please confirm the deletion of this field.</p>
 </header>
 
-<form action="{% url "formly_dt_field_delete" pk=field.pk %}" method="post">
+<form action="{% url "formly:dt_field_delete" pk=field.pk %}" method="post">
     <legend>{{ field }}</legend>
     {% csrf_token %}
     <fieldset>

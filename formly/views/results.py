@@ -13,6 +13,9 @@ def survey_results(request, pk):
     if not request.user.has_perm("formly.view_results", obj=survey):
         raise PermissionDenied()
 
-    return render(request, "formly/results/home.html", {
-        "survey": survey,
-    })
+    return render(
+        request,
+        "formly/results/home.html",
+        context={
+            "survey": survey,
+        })

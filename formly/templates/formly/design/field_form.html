@@ -9,7 +9,7 @@
   <p class="lead">Configure the field.</p>
 </header>
 
-<form action="{% url "formly_dt_field_update" pk=field.pk %}" method="post" class="well">
+<form action="{% url "formly:dt_field_update" pk=field.pk %}" method="post" class="well">
     {% csrf_token %}
     <fieldset>
         {{ form|bootstrap }}
@@ -18,7 +18,7 @@
         <input type="hidden" name="action" value="field_update" />
         <button type="submit" class="btn btn-primary">Save</button>
         <a class="btn" href="{{ field.page.get_absolute_url }}">Cancel</a>
-        <a class="btn btn-danger" href="{% url "formly_dt_field_delete" pk=field.pk %}">Delete</a>
+        <a class="btn btn-danger" href="{% url "formly:dt_field_delete" pk=field.pk %}">Delete</a>
     </div>
 </form>
 
@@ -37,13 +37,13 @@
             {% for choice in field.choices.all %}
             <tr>
                 <td>
-                    <a href="{% url "formly_dt_choice_update" pk=choice.pk %}">
+                    <a href="{% url "formly:dt_choice_update" pk=choice.pk %}">
                         {{ choice.label }}
                     </a>
                 </td>
                 <td>{{ choice.target|default:"" }}</td>
                 <td>
-                    <a class="btn btn-danger btn-mini" href="{% url "formly_dt_choice_delete" pk=choice.pk %}">Delete</a>
+                    <a class="btn btn-danger btn-mini" href="{% url "formly:dt_choice_delete" pk=choice.pk %}">Delete</a>
                 </td>
             </tr>
             {% endfor %}
@@ -59,7 +59,7 @@
             <button type="button" class="close" data-dismiss="modal">x</button>
             <h3>Add Field</h3>
         </div>
-        <form action="{% url "formly_dt_field_update" pk=field.pk %}" method="post">
+        <form action="{% url "formly:dt_field_update" pk=field.pk %}" method="post">
             {% csrf_token %}
             <div class="modal-body">
                 {{ field_choice_form|bootstrap }}

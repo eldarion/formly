@@ -36,15 +36,18 @@ def take_survey(request, pk):
         form = PageForm(**kwargs)
         if form.is_valid():
             form.save(user=request.user)
-            return redirect("formly_rt_take_survey", pk=survey.pk)
+            return redirect("formly:rt_take_survey", pk=survey.pk)
     else:
         form = PageForm(page=page)
 
-    return render(request, "formly/run/page.html", {
-        "survey": survey,
-        "page": page,
-        "form": form
-    })
+    return render(
+        request,
+        "formly/run/page.html",
+        context={
+            "survey": survey,
+            "page": page,
+            "form": form
+        })
 
 
 @login_required
@@ -66,6 +69,7 @@ def choice_question(request, pk):
     data = {
         "html": render_to_string(
             "formly/run/_question.html",
-            RequestContext(request, {"form": form}))
+            request=request,
+            context={"form": form})
     }
     return HttpResponse(json.dumps(data), content_type="application/json")

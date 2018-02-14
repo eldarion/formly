@@ -32,7 +32,7 @@
 
 ### Overview
 
-``formly`` is a forms/survey generator for dynamically constructor multi-page surveys that have the ability to be non-linear.
+``formly`` is a forms/survey generator for dynamically constructed multi-page surveys with the ability to be non-linear.
 
 `formly` is an app that provides an out of the box solution to building adhoc
 forms to collect data from end users. It is multi-faceted in that it provides

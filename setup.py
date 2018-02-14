@@ -30,7 +30,7 @@ Formly
 
 \ 
 
-``formly`` is a forms/survey generator for dynamically constructor multi-page surveys that have the ability to be non-linear.
+``formly`` is a forms/survey generator for dynamically constructed multi-page surveys with the ability to be non-linear.
 
 
 Development sponsored by `Midwest Communications`_ and `Massachusetts General Hospital`_.
@@ -55,7 +55,7 @@ Supported Django and Python Versions
 setup(
     author="Patrick Altman",
     author_email="paltman@eldarion.com",
-    description="A forms/survey generator for dynamically constructor multi-page surveys",
+    description="A forms/survey generator for dynamically constructed multi-page surveys",
     name="formly",
     long_description=LONG_DESCRIPTION,
     version=VERSION,

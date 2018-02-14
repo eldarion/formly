@@ -2,18 +2,24 @@ import json
 
 from django.core.exceptions import PermissionDenied
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
+
+from formly.forms.design import (
+    FieldChoiceForm,
+    FieldForm,
+    OrdinalScaleForm,
+    PageUpdateForm,
+    SurveyCreateForm,
+)
+from formly.models import Field, FieldChoice, OrdinalScale, Page, Survey
+from formly.utils.views import BaseDeleteView
 
 try:
     from account.decorators import login_required
 except ImportError:
     from django.contrib.auth.decorators import login_required
-
-from formly.utils.views import BaseDeleteView
-from formly.forms.design import SurveyCreateForm, PageUpdateForm, FieldForm, FieldChoiceForm, OrdinalScaleForm
-from formly.models import Survey, Page, Field, FieldChoice, OrdinalScale
 
 
 @login_required

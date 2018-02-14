@@ -1,8 +1,6 @@
 from django.conf.urls import url
 
-from formly.views import design
-from formly.views import results
-from formly.views import run
+from formly.views import design, results, run
 
 app_name = "formly"
 

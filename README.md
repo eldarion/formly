@@ -449,6 +449,7 @@ defined in settings.py and ship some sane defaults.
 * Move documentation into README and standardize layout
 * Convert CI and coverage to CircleCi and CodeCov
 * Add PyPi-compatible long description
+* Add migration checking to test suite
 
 ### 0.14.0
 

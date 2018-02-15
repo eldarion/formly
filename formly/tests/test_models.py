@@ -1,9 +1,10 @@
 import datetime
 import unittest
-from unittest.mock import patch
 
 from django.core.exceptions import ValidationError
 from django.urls import reverse
+
+from mock import patch
 
 from .mixins import SimpleTests
 
@@ -20,7 +21,7 @@ class ModelTests(SimpleTests):
         for choice in choices:
             self._ordinal_choice(label=choice[0], score=choice[1])
 
-        expected = f"{self.scale.name} [first (1), middle (2), last (3)]"
+        expected = "{} [first (1), middle (2), last (3)]".format(self.scale.name)
         self.assertEqual(str(self.scale), expected)
 
     def test_ordinal_scale_unique_label(self):
@@ -78,7 +79,7 @@ class ModelTests(SimpleTests):
         self.survey = self._survey()
         page = self._page(page_num=5, create=False)
         # no subtitle, check for default label
-        self.assertEqual(page.label(), f"Page {page.page_num}")
+        self.assertEqual(page.label(), "Page {}".format(page.page_num))
         # set subtitle
         subtitle = "subtitle"
         page.subtitle = subtitle

@@ -124,7 +124,7 @@ def survey_publish(request, pk):
         raise PermissionDenied()
 
     survey.publish()
-    return redirect("formly:dt_survey_list")
+    return redirect("formly:survey_list")
 
 
 @require_POST
@@ -136,7 +136,7 @@ def survey_duplicate(request, pk):
         raise PermissionDenied()
 
     duped = survey.duplicate()
-    return redirect("formly:dt_survey_detail", pk=duped.pk)
+    return redirect("formly:survey_detail", pk=duped.pk)
 
 
 @require_POST
@@ -488,22 +488,22 @@ def choice_update(request, pk):
 
 class SurveyDeleteView(BaseDeleteView):
     model = Survey
-    success_url_name = "formly:dt_survey_list"
+    success_url_name = "formly:survey_list"
 
 
 class PageDeleteView(BaseDeleteView):
     model = Page
-    success_url_name = "formly:dt_survey_detail"
+    success_url_name = "formly:survey_detail"
     pk_obj_name = "survey"
 
 
 class FieldDeleteView(BaseDeleteView):
     model = Field
-    success_url_name = "formly:dt_page_update"
+    success_url_name = "formly:page_update"
     pk_obj_name = "page"
 
 
 class ChoiceDeleteView(BaseDeleteView):
     model = FieldChoice
-    success_url_name = "formly:dt_field_update"
+    success_url_name = "formly:field_update"
     pk_obj_name = "field"

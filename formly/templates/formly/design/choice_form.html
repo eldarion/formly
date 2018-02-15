@@ -9,7 +9,7 @@
   <p class="lead">Configure the choice.</p>
 </header>
 
-<form action="{% url "formly:dt_choice_update" pk=choice.pk %}" method="post">
+<form action="{% url "formly:choice_update" pk=choice.pk %}" method="post">
     {% csrf_token %}
     <fieldset>
         {{ form|as_bootstrap }}

@@ -33,7 +33,7 @@ def take_survey(request, pk):
         form = PageForm(**kwargs)
         if form.is_valid():
             form.save(user=request.user)
-            return redirect("formly:rt_take_survey", pk=survey.pk)
+            return redirect("formly:take_survey", pk=survey.pk)
     else:
         form = PageForm(page=page)
 

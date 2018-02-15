@@ -1,6 +1,6 @@
 {% if selected_page %}
     <h2>Fields</h2>
-    <form action="{% url "formly:dt_field_create" pk=selected_page.pk %}" method="post">
+    <form action="{% url "formly:field_create" pk=selected_page.pk %}" method="post">
         {% csrf_token %}
         <button class="btn btn-mini btn-block btn-default"><i class="fa fa-fw fa-plus"></i> Add Field</button>
     </form>
@@ -11,20 +11,20 @@
             <div>
                 <span class="ordering btn-group pull-right">
                     <a class="btn btn-xs btn-default ajax"
-                       href="{% url "formly:dt_field_move_up" pk=field.pk %}"
+                       href="{% url "formly:field_move_up" pk=field.pk %}"
                        data-replace-inner=".fields"
                        data-method="post">
                        <i class="fa fa-fw fa-arrow-up"></i>
                     </a>
                     <a class="btn btn-xs btn-default ajax"
-                       href="{% url "formly:dt_field_move_down" pk=field.pk %}"
+                       href="{% url "formly:field_move_down" pk=field.pk %}"
                        data-replace-inner=".fields"
                        data-method="post">
                        <i class="fa fa-fw fa-arrow-down"></i>
                     </a>
                 </span>
                 <span>
-                    <a href="{% url "formly:dt_field_update" pk=field.pk %}">
+                    <a href="{% url "formly:field_update" pk=field.pk %}">
                         {{ field.label }}
                     </a>
                 </span>

@@ -91,6 +91,8 @@ setup(
         "django-appconf>=1.0.2",
     ],
     tests_require=[
+        "django-test-plus>=1.0.22",
+        "factory_boy>=2.10.0",
     ],
     test_suite="runtests.runtests",
     zip_safe=False

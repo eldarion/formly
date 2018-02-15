@@ -39,7 +39,7 @@ class OrdinalChoice(models.Model):
     score = models.IntegerField()
 
     def __str__(self):
-        return "{} ({})".format(self.label, self.score)
+        return "{} ({})".format(self.label, self.score)  # pragma: no cover
 
     class Meta:
         unique_together = [("scale", "score"), ("scale", "label")]
@@ -59,10 +59,10 @@ class Survey(models.Model):
         return super(Survey, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.name  # pragma: no cover
 
     def get_absolute_url(self):
-        return reverse("formly:dt_survey_detail", kwargs={"pk": self.pk})
+        return reverse("formly:survey_detail", kwargs={"pk": self.pk})
 
     def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
@@ -156,7 +156,7 @@ class Page(models.Model):
         return super(Page, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.label()
+        return self.label()  # pragma: no cover
 
     def label(self):
         if self.subtitle:
@@ -165,7 +165,7 @@ class Page(models.Model):
             return "Page %d" % self.page_num
 
     def get_absolute_url(self):
-        return reverse("formly:dt_page_detail", kwargs={"pk": self.pk})
+        return reverse("formly:page_detail", kwargs={"pk": self.pk})
 
     def move_up(self):
         try:
@@ -315,7 +315,7 @@ class Field(models.Model):
         )
 
     def get_absolute_url(self):
-        return reverse("formly:dt_field_update", kwargs={"pk": self.pk})
+        return reverse("formly:field_update", kwargs={"pk": self.pk})
 
     @property
     def needs_choices(self):

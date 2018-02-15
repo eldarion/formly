@@ -30,7 +30,7 @@ class ModelTests(SimpleTests):
         self._ordinal_choice(label=label, score=score)
 
         # duplicate label
-        choice = self._ordinal_choice(label=label, score=score+1, create=False)
+        choice = self._ordinal_choice(label=label, score=score + 1, create=False)
         msg = "Ordinal choice with this Scale and Label already exists."
         with self.assertRaisesMessage(ValidationError, msg):
             choice.validate_unique()
@@ -42,7 +42,7 @@ class ModelTests(SimpleTests):
         self._ordinal_choice(label=label, score=score)
 
         # duplicate score
-        choice = self._ordinal_choice(label=label+"extra", score=score, create=False)
+        choice = self._ordinal_choice(label="different", score=score, create=False)
         msg = "Ordinal choice with this Scale and Score already exists."
         with self.assertRaisesMessage(ValidationError, msg):
             choice.validate_unique()

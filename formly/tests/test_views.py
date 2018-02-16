@@ -105,7 +105,7 @@ class ViewTests(SimpleTests):
             self.post("formly:survey_change_name", pk=survey.pk, data=post_data)
             self.response_200()
             self.assertTrue(Survey.objects.get(name=survey_name))
-            json_data = json.loads(self.last_response.content)
+            json_data = json.loads(self.last_response.content.decode("utf-8"))
             self.assertEqual(json_data["status"], "OK")
             self.assertEqual(json_data["name"], survey_name)
 

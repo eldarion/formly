@@ -1,7 +1,7 @@
 import json
 
-from .mixins import SimpleTests
 from ..models import Survey
+from .mixins import SimpleTests
 
 
 class ViewTests(SimpleTests):

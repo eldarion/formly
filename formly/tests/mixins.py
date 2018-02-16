@@ -1,10 +1,11 @@
+from test_plus.test import TestCase
+
 from formly.tests.factories import (
     OrdinalChoiceFactory,
     OrdinalScaleFactory,
     PageFactory,
     SurveyFactory,
 )
-from test_plus.test import TestCase
 
 
 class TestHelperMixin(object):

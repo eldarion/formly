@@ -1,4 +1,5 @@
 import factory
+
 from formly.models import OrdinalChoice, OrdinalScale, Page, Survey
 
 

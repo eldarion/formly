@@ -87,10 +87,12 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     install_requires=[
-        "jsonfield>=2.0.2",
+        "django>=1.11",
         "django-appconf>=1.0.2",
+        "jsonfield>=2.0.2",
     ],
     tests_require=[
+        "django-bootstrap-form>=3.0.0",
         "django-test-plus>=1.0.22",
         "factory_boy>=2.10.0",
         "mock>=2.0.0",

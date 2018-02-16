@@ -84,12 +84,23 @@ Next, add `formly.urls` to your project urlpatterns:
     ]
 ```
 
+Finally, if you want to use formly's permission authentications,
+add `formly.auth_backend.AuthenticationBackend` to your settings
+AUTHENTICATION_BACKENDS:
+
+```python
+    AUTHENTICATION_BACKENDS = [
+        # other authentication backends
+        "formly.auth_backend.AuthenticationBackend",
+    ]
+```
+
 ### Optional Requirements
 
 In order to use built-in templates, add the following dependencies to your project:
 
 * pinax-theme-bootstrap (not required if you use different block names)
-* django-forms-bootstrap (required for form rendering in templates)
+* django-bootstrap-form (required for form rendering in templates)
 
 
 ### Usage
@@ -446,6 +457,7 @@ defined in settings.py and ship some sane defaults.
 * Add Django v1.11, 2.0 support
 * Drop Django 1.8, 1.9, 1.10, and Python 3.3 support
 * Add URL namespacing (i.e. urlname "formly_survey_results" is now "formly:survey_results") **Backwards Incompatible**
+* Rename URL names, removing "dt_" and "rt_" prefixes **Backwards incompatible**
 * Move documentation into README and standardize layout
 * Convert CI and coverage to CircleCi and CodeCov
 * Add PyPi-compatible long description

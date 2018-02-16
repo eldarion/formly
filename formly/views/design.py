@@ -1,7 +1,5 @@
-import json
-
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
@@ -25,7 +23,7 @@ except ImportError:
 @login_required
 def survey_list(request):
     if not request.user.has_perm("formly.view_survey_list"):
-        raise PermissionDenied()
+        raise PermissionDenied()  # pragma: no cover
 
     return render(
         request,
@@ -43,7 +41,7 @@ def survey_detail(request, pk):
     if not request.user.has_perm("formly.view_survey_detail", obj=survey):
         raise PermissionDenied()
 
-    return render(
+    response = render(
         request,
         "formly/design/survey_list.html",
         context={
@@ -52,6 +50,7 @@ def survey_detail(request, pk):
             "pages": survey.pages.all(),
             "selected_survey": survey
         })
+    return response
 
 
 @login_required
@@ -77,7 +76,7 @@ def page_detail(request, pk):
 @login_required
 def survey_create(request):
     if not request.user.has_perm("formly.create_survey"):
-        raise PermissionDenied()
+        raise PermissionDenied()  # pragma: no cover
 
     if request.method == "POST":
         form = SurveyCreateForm(request.POST, user=request.user)
@@ -109,10 +108,10 @@ def survey_change_name(request, pk):
 
     survey.name = request.POST.get("name")
     survey.save()
-    return HttpResponse(json.dumps({
+    return JsonResponse({
         "status": "OK",
         "name": survey.name
-    }), mimetype="application/json")
+    })
 
 
 @require_POST
@@ -171,7 +170,7 @@ def fields_create(request, pk):
 
 @login_required
 def page_update(request, pk):
-    # @@@ break this apart into seperate views
+    # @@@ break this apart into separate views
     page = get_object_or_404(Page, pk=pk)
 
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):

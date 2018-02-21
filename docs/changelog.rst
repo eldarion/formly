@@ -3,6 +3,10 @@
 ChangeLog
 =========
 
+0.15.0
+------
+- fix bug where widget instances were passed instead of widget classes (#34)
+
 0.14.0
 ------
 - add hookset to support customizing available field type choices when designing a survey

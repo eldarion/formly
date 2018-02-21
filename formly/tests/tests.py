@@ -1,11 +1,13 @@
 from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from formly.forms.run import PageForm
 
 from ..models import (
     Field,
     Survey,
     FieldChoice,
+    Page,
 )
 
 User = get_user_model()
@@ -71,3 +73,49 @@ class Tests(TestCase):
         form_field = field.form_field()
         with self.assertRaises(ValidationError):
             form_field.clean(choice_pks)
+
+    def test_multiplechoice_field_choice_form_widgets(self):
+
+        survey = Survey.objects.create(
+            name="choice widget test",
+            creator=self.user,
+        )
+
+        page = Page.objects.create(
+            survey=survey,
+            page_num=1,
+            subtitle="Single page survey",
+        )
+
+        field1 = Field.objects.create(
+            survey=survey,
+            label="multiple choice field1",
+            field_type=Field.CHECKBOX_FIELD,
+            maximum_choices=1,
+            ordinal=0,
+            page=page,
+        )
+        field2 = Field.objects.create(
+            survey=survey,
+            label="multiple choice field2",
+            field_type=Field.CHECKBOX_FIELD,
+            maximum_choices=1,
+            ordinal=0,
+            page=page,
+        )
+
+        choice_pks = []
+        for label in ["a", "b"]:
+            choice = FieldChoice.objects.create(label=label, field=field1)
+            choice_pks.append(choice.pk)
+
+        for label in ["c", "d"]:
+            choice = FieldChoice.objects.create(label=label, field=field2)
+            choice_pks.append(choice.pk)
+
+        form = PageForm(page=page)
+        form_htm = form.as_p()
+
+        # The form should have all four key values for all four fields
+        for c_pk in choice_pks:
+            self.assertTrue('value="{}"'.format(c_pk) in form_htm)

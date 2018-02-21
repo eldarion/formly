@@ -376,25 +376,25 @@ FIELD_TYPES = {
     Field.TEXT_AREA: dict(
         field_class=forms.CharField,
         kwargs=dict(
-            widget=forms.Textarea()
+            widget=forms.Textarea
         )
     ),
     Field.RADIO_CHOICES: dict(
         field_class=forms.ChoiceField,
         kwargs=dict(
-            widget=forms.RadioSelect()
+            widget=forms.RadioSelect
         )
     ),
     Field.LIKERT_FIELD: dict(
         field_class=forms.ChoiceField,
         kwargs=dict(
-            widget=LikertSelect()
+            widget=LikertSelect
         )
     ),
     Field.RATING_FIELD: dict(
         field_class=forms.ChoiceField,
         kwargs=dict(
-            widget=RatingSelect()
+            widget=RatingSelect
         )
     ),
     Field.DATE_FIELD: dict(
@@ -404,13 +404,13 @@ FIELD_TYPES = {
     Field.SELECT_FIELD: dict(
         field_class=forms.ChoiceField,
         kwargs=dict(
-            widget=forms.Select()
+            widget=forms.Select
         )
     ),
     Field.CHECKBOX_FIELD: dict(
         field_class=LimitedMultipleChoiceField,
         kwargs=dict(
-            widget=forms.CheckboxSelectMultiple()
+            widget=forms.CheckboxSelectMultiple
         )
     ),
     Field.BOOLEAN_FIELD: dict(

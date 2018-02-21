@@ -102,6 +102,13 @@ In order to use built-in templates, add the following dependencies to your proje
 * pinax-theme-bootstrap (not required if you use different block names)
 * django-bootstrap-form (required for form rendering in templates)
 
+```python
+    INSTALLED_APPS = [
+        # other apps
+        "bootstrapform",
+    ]
+```
+
 
 ### Usage
 
@@ -462,6 +469,10 @@ defined in settings.py and ship some sane defaults.
 * Convert CI and coverage to CircleCi and CodeCov
 * Add PyPi-compatible long description
 * Add migration checking to test suite
+
+### 0.15.0
+
+* fix bug where widget instances were passed instead of widget classes (#34)
 
 ### 0.14.0
 

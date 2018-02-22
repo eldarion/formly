@@ -152,7 +152,7 @@ def page_create(request, pk):
 
 @require_POST
 @login_required
-def fields_create(request, pk):
+def field_create(request, pk):
     page = get_object_or_404(Page, pk=pk)
 
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):

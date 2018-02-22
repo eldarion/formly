@@ -243,6 +243,9 @@ class Field(models.Model):
     #             )
 
     def save(self, *args, **kwargs):
+        if not self.ordinal:
+            # Set ordinal, since full_clean() will fail if not set
+            self.ordinal = 1
         self.full_clean()
         if not self.pk and self.page is not None:
             self.ordinal = (self.page.fields.aggregate(

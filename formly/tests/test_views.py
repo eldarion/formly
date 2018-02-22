@@ -1,7 +1,5 @@
 import json
 
-from django.urls import reverse
-
 from ..models import Field, Page, Survey
 from .mixins import SimpleTests
 

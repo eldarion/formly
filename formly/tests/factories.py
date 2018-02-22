@@ -49,6 +49,7 @@ class FieldFactory(factory.django.DjangoModelFactory):
     field_type = Field.TEXT_FIELD
     ordinal = factory.Sequence(lambda n: n)
 
+
 class FieldChoiceFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = FieldChoice

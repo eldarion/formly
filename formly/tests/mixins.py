@@ -58,5 +58,6 @@ class TestHelperMixin(object):
         else:
             return FieldChoiceFactory.build(**kwargs)
 
+
 class SimpleTests(TestCase, TestHelperMixin):
     pass

@@ -27,7 +27,8 @@ DEFAULT_SETTINGS = dict(
 
         "bootstrapform",
         "formly",
-        "formly.tests"
+        "formly.tests",
+        "pinax.templates",
     ],
     AUTHENTICATION_BACKENDS=[
         "formly.auth_backend.AuthenticationBackend"

@@ -1,6 +1,6 @@
 import json
 
-from ..models import Field, Page, Survey
+from ..models import Field, FieldChoice, Page, Survey
 from .mixins import SimpleTests
 
 
@@ -217,7 +217,7 @@ class ViewTests(SimpleTests):
         self.response_302()
 
     def test_field_create_post(self):
-        """Verify authenticated user can create a survey"""
+        """Verify authenticated user can create a field"""
         survey = self._survey()
         page = self._page(survey=survey)
         with self.login(self.user):
@@ -236,3 +236,164 @@ class ViewTests(SimpleTests):
         with self.login(not_creator):
             self.post("formly:field_create", pk=page.pk)
             self.response_403()
+
+    def test_page_update_creator_get(self):
+        """Verify authenticated survey creator allowed"""
+        self.survey = self._survey()
+        page1 = self._page()
+        with self.login(self.user):
+            self.get("formly:page_update", pk=page1.pk)
+            self.response_200()
+            page = self.context["page"]
+            self.assertEqual(page, page1)
+            self.assertTrue(self.context["form"])
+
+    def test_page_update_not_creator_get(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        self._page()  # Create another page for good measure
+        with self.login(not_creator):
+            self.get("formly:page_update", pk=page.pk)
+            self.response_403()
+
+    def test_page_update_page_update(self):
+        """Verify user can update page"""
+        self.survey = self._survey()
+        page1 = self._page()
+        post_data = dict(
+            action="page_update",
+            subtitle="Submarine Title",
+        )
+        with self.login(self.user):
+            self.post("formly:page_update", pk=page1.pk, data=post_data, follow=True)
+            page = self.context["selected_page"]
+            self.assertRedirects(self.last_response, page.get_absolute_url())
+            self.assertEqual(page.subtitle, post_data["subtitle"])
+
+    def test_page_update_add_field(self):
+        """Verify user can update add field to page"""
+        self.survey = self._survey()
+        page1 = self._page()
+        post_data = {
+            "action": "field_add",
+            "fields-label": "Field Hockey",
+            "fields-field_type": Field.TEXT_FIELD,
+            "fields-expected_answers": 1,
+        }
+        with self.login(self.user):
+            self.post("formly:page_update", pk=page1.pk, data=post_data, follow=True)
+            page = self.context["selected_page"]
+            self.assertRedirects(self.last_response, page.get_absolute_url())
+            self.assertTrue(
+                Field.objects.get(label=post_data["fields-label"], survey=self.survey, page=page1)
+            )
+
+    def test_field_move_up_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(not_creator):
+            self.post("formly:field_move_up", pk=field.pk)
+            self.response_403()
+
+    def test_field_move_up_anonymous_post(self):
+        """Verify anonymous user is redirected"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        self.post("formly:field_move_up", pk=field.pk)
+        self.response_302()
+
+    def test_field_move_up(self):
+        self.survey = self._survey()
+        page = self._page()
+        field1 = self._field(page=page, ordinal=1)
+        field2 = self._field(page=page, ordinal=2)
+        with self.login(self.user):
+            self.post("formly:field_move_up", pk=field2.pk)
+        field1.refresh_from_db()
+        field2.refresh_from_db()
+        self.assertTrue(field2.ordinal < field1.ordinal)
+
+    def test_field_move_down_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(not_creator):
+            self.post("formly:field_move_down", pk=field.pk)
+            self.response_403()
+
+    def test_field_move_down_anonymous_post(self):
+        """Verify anonymous user is redirected"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        self.post("formly:field_move_down", pk=field.pk)
+        self.response_302()
+
+    def test_field_move_down(self):
+        self.survey = self._survey()
+        page = self._page()
+        field1 = self._field(page=page, ordinal=1)
+        field2 = self._field(page=page, ordinal=2)
+        with self.login(self.user):
+            self.post("formly:field_move_down", pk=field1.pk)
+        field1.refresh_from_db()
+        field2.refresh_from_db()
+        self.assertTrue(field2.ordinal < field1.ordinal)
+
+    def test_survey_results_not_creator(self):
+        survey = self._survey()
+        not_creator = self.make_user("not_creator")
+        with self.login(not_creator):
+            self.get("formly:survey_results", pk=survey.pk)
+            self.response_403()
+
+    def test_survey_results(self):
+        survey = self._survey()
+        with self.login(self.user):
+            self.get("formly:survey_results", pk=survey.pk)
+            self.assertTemplateUsed(template_name="formly/results/home.html")
+
+    def test_field_add_choice_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(not_creator):
+            self.get("formly:page_update", pk=field.pk)
+            self.response_403()
+
+    def test_field_add_choice(self):
+        """Verify user can update page"""
+        self.survey = self._survey()
+        page1 = self._page()
+        field1 = self._field(page=page1)
+        post_data = {
+            "choices-label": "New Field Choice!"
+        }
+        original_choices = FieldChoice.objects.count()
+        with self.login(self.user):
+            self.post("formly:field_add_choice", pk=field1.pk, data=post_data, follow=True)
+            self.assertRedirects(self.last_response, field1.get_absolute_url())
+            self.assertEqual(FieldChoice.objects.count(), original_choices+1)
+
+    def test_field_add_choice_bad_data(self):
+        """Verify user can update page"""
+        self.survey = self._survey()
+        page1 = self._page()
+        field1 = self._field(page=page1)
+        post_data = {
+            "nothing": "New Field Choice!"
+        }
+        with self.login(self.user):
+            self.post("formly:field_add_choice", pk=field1.pk, data=post_data)
+            self.response_200()
+            self.assertTemplateUsed(template_name="formly/design/survey_list.html")

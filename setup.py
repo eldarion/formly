@@ -96,6 +96,7 @@ setup(
         "django-test-plus>=1.0.22",
         "factory_boy>=2.10.0",
         "mock>=2.0.0",
+        "pinax-templates>=1.0.0",
     ],
     test_suite="runtests.runtests",
     zip_safe=False

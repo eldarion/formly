@@ -383,7 +383,7 @@ class ViewTests(SimpleTests):
         with self.login(self.user):
             self.post("formly:field_add_choice", pk=field1.pk, data=post_data, follow=True)
             self.assertRedirects(self.last_response, field1.get_absolute_url())
-            self.assertEqual(FieldChoice.objects.count(), original_choices+1)
+            self.assertEqual(FieldChoice.objects.count(), original_choices + 1)
 
     def test_field_add_choice_bad_data(self):
         """Verify user can update page"""

@@ -1,6 +1,8 @@
 import json
 
-from ..models import Survey
+from django.urls import reverse
+
+from ..models import Field, Page, Survey
 from .mixins import SimpleTests
 
 
@@ -155,7 +157,16 @@ class ViewTests(SimpleTests):
     def test_survey_duplicate_creator(self):
         """Verify survey creator can publish survey"""
         survey = self._survey()
-        self.assertFalse(survey.published)
+        page1 = self._page(survey=survey)
+        field1 = self._field(survey=survey, page=page1)
+        self._fieldchoice(field=field1)
+        self._fieldchoice(field=field1)
+        field2 = self._field(survey=survey, page=page1)
+        self._fieldchoice(field=field2)
+        self._fieldchoice(field=field2)
+        page2 = self._page(survey=survey)
+        self._field(survey=survey, page=page2)
+        self._field(survey=survey, page=page2)
         with self.login(self.user):
             self.post("formly:survey_duplicate", pk=survey.pk, follow=True)
             self.response_200()
@@ -177,3 +188,53 @@ class ViewTests(SimpleTests):
         self.post("formly:survey_duplicate", pk=survey.pk)
         self.response_302()
         self.assertFalse(survey.published)
+
+    def test_page_create_anonymous_post(self):
+        """Verify anonymous user is redirected"""
+        survey = self._survey()
+        self.post("formly:page_create", pk=survey.pk)
+        self.response_302()
+
+    def test_page_create_post(self):
+        """Verify authenticated user can create a survey"""
+        survey = self._survey()
+        with self.login(self.user):
+            self.post("formly:page_create", pk=survey.pk, follow=True)
+            page = Page.objects.get(survey=survey)
+            self.assertRedirects(self.last_response, page.get_absolute_url())
+
+    def test_page_create_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        survey = self._survey()
+        with self.login(not_creator):
+            self.post("formly:page_create", pk=survey.pk)
+            self.response_403()
+
+    def test_field_create_anonymous_post(self):
+        """Verify anonymous user is redirected"""
+        survey = self._survey()
+        page = self._page(survey=survey)
+        self.post("formly:field_create", pk=page.pk)
+        self.response_302()
+
+    def test_field_create_post(self):
+        """Verify authenticated user can create a survey"""
+        survey = self._survey()
+        page = self._page(survey=survey)
+        with self.login(self.user):
+            self.post("formly:field_create", pk=page.pk, follow=True)
+            field = Field.objects.get(page=page, survey=survey)
+            self.assertRedirects(self.last_response, field.get_absolute_url())
+            self.assertEqual(field.label, "New Field")
+            self.assertEqual(field.field_type, Field.TEXT_FIELD)
+            self.assertEqual(field.ordinal, 1)
+
+    def test_field_create_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        survey = self._survey()
+        page = self._page(survey=survey)
+        with self.login(not_creator):
+            self.post("formly:field_create", pk=page.pk)
+            self.response_403()

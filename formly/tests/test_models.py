@@ -94,22 +94,22 @@ class ModelTests(SimpleTests):
             reverse("formly:page_detail", args=[page.pk])
         )
 
-    @unittest.skip("Broken method Page.move_up")
-    def test_page_move_up(self):
+    def test_field_move_up(self):
         self.survey = self._survey()
         page1 = self._page()
-        self.assertEqual(page1.page_num, 1)
-        page2 = self._page()
-        self.assertEqual(page2.page_num, 2)
-        page2.move_up()
-        self.assertEqual(page2.page_num, 1)
+        field1 = self._field(page=page1, ordinal=1)
+        field2 = self._field(page=page1, ordinal=2)
+        field2.move_up()
+        field1.refresh_from_db()
+        field2.refresh_from_db()
+        self.assertTrue(field2.ordinal < field1.ordinal)
 
-    @unittest.skip("Broken method Page.move_down")
-    def test_page_move_down(self):
+    def test_field_move_down(self):
         self.survey = self._survey()
         page1 = self._page()
-        self.assertEqual(page1.page_num, 1)
-        page2 = self._page()
-        self.assertEqual(page2.page_num, 2)
-        page1.move_down()
-        self.assertEqual(page1.page_num, 2)
+        field1 = self._field(page=page1, ordinal=1)
+        field2 = self._field(page=page1, ordinal=2)
+        field1.move_down()
+        field1.refresh_from_db()
+        field2.refresh_from_db()
+        self.assertTrue(field2.ordinal < field1.ordinal)

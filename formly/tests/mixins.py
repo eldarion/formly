@@ -1,6 +1,7 @@
 from test_plus.test import TestCase
 
 from formly.tests.factories import (
+    FieldFactory,
     OrdinalChoiceFactory,
     OrdinalScaleFactory,
     PageFactory,
@@ -40,6 +41,13 @@ class TestHelperMixin(object):
         else:
             return PageFactory.build(**kwargs)
 
+    def _field(self, create=True, **kwargs):
+        if "survey" not in kwargs:
+            kwargs["survey"] = self.survey
+        if create is True:
+            return FieldFactory.create(**kwargs)
+        else:
+            return FieldFactory.build(**kwargs)
 
 class SimpleTests(TestCase, TestHelperMixin):
     pass

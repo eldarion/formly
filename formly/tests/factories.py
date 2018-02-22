@@ -1,6 +1,6 @@
 import factory
 
-from formly.models import OrdinalChoice, OrdinalScale, Page, Survey
+from formly.models import Field, OrdinalChoice, OrdinalScale, Page, Survey
 
 
 class OrdinalChoiceFactory(factory.django.DjangoModelFactory):
@@ -32,3 +32,12 @@ class SurveyFactory(factory.django.DjangoModelFactory):
 class PageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Page
+
+
+class FieldFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = Field
+
+    label = factory.Sequence(lambda n: "field-label-{}".format(n))
+    field_type = Field.TEXT_FIELD
+    ordinal = factory.Sequence(lambda n: n)

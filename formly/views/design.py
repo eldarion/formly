@@ -185,7 +185,7 @@ def page_update(request, pk):
                 return redirect(page)
         if request.POST.get("action") == "field_add":
             form = PageUpdateForm(instance=page)
-            field_form = FieldForm(request.POST, prefix="fields")
+            field_form = FieldForm(data=request.POST, prefix="fields")
             if field_form.is_valid():
                 field = field_form.save(commit=False)
                 field.page = page

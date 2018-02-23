@@ -421,6 +421,11 @@ def field_update(request, pk):
             if form.is_valid():
                 form.save()
                 return redirect(field)
+        else:
+            form = FieldForm(instance=field)
+            field_choice_form = FieldChoiceForm(prefix="choices")
+            likert_scale_form = OrdinalScaleForm()
+            rating_scale_form = OrdinalScaleForm()
     else:
         form = FieldForm(instance=field)
         field_choice_form = FieldChoiceForm(prefix="choices")
@@ -485,24 +490,24 @@ def choice_update(request, pk):
         })
 
 
-class SurveyDeleteView(BaseDeleteView):
+class SurveyDelete(BaseDeleteView):
     model = Survey
     success_url_name = "formly:survey_list"
 
 
-class PageDeleteView(BaseDeleteView):
+class PageDelete(BaseDeleteView):
     model = Page
     success_url_name = "formly:survey_detail"
     pk_obj_name = "survey"
 
 
-class FieldDeleteView(BaseDeleteView):
+class FieldDelete(BaseDeleteView):
     model = Field
     success_url_name = "formly:page_update"
     pk_obj_name = "page"
 
 
-class ChoiceDeleteView(BaseDeleteView):
+class ChoiceDelete(BaseDeleteView):
     model = FieldChoice
     success_url_name = "formly:field_update"
     pk_obj_name = "field"

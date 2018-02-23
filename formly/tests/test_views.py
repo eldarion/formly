@@ -28,7 +28,7 @@ class ViewTests(SimpleTests):
         self.response_302()
 
     def test_survey_detail_creator(self):
-        """Verify authenticated survey creator can see survey list"""
+        """Verify survey creator can see survey list"""
         survey1 = self._survey()
         survey2 = self._survey()
         with self.login(self.user):
@@ -48,7 +48,7 @@ class ViewTests(SimpleTests):
             self.response_403()
 
     def test_page_detail_creator(self):
-        """Verify authenticated survey creator can see survey list"""
+        """Verify survey creator can see page detail"""
         self.survey = self._survey()
         page1 = self._page()
         page2 = self._page()  # Create another page for good measure
@@ -95,7 +95,7 @@ class ViewTests(SimpleTests):
             self.assertEqual(survey.creator, self.user)
 
     def test_survey_change_name_creator(self):
-        """Verify survey creator can change name"""
+        """Verify survey creator can change survey name"""
         survey = self._survey()
         survey_name = "Excellent Survey"
         post_data = {
@@ -238,7 +238,7 @@ class ViewTests(SimpleTests):
             self.response_403()
 
     def test_page_update_creator_get(self):
-        """Verify authenticated survey creator allowed"""
+        """Verify survey creator is allowed"""
         self.survey = self._survey()
         page1 = self._page()
         with self.login(self.user):
@@ -259,7 +259,7 @@ class ViewTests(SimpleTests):
             self.response_403()
 
     def test_page_update_page_update(self):
-        """Verify user can update page"""
+        """Verify survey creator can update page"""
         self.survey = self._survey()
         page1 = self._page()
         post_data = dict(
@@ -273,7 +273,7 @@ class ViewTests(SimpleTests):
             self.assertEqual(page.subtitle, post_data["subtitle"])
 
     def test_page_update_add_field(self):
-        """Verify user can update add field to page"""
+        """Verify survey creator can add field to page"""
         self.survey = self._survey()
         page1 = self._page()
         post_data = {
@@ -309,6 +309,7 @@ class ViewTests(SimpleTests):
         self.response_302()
 
     def test_field_move_up(self):
+        """Verify survey creator can move a field up"""
         self.survey = self._survey()
         page = self._page()
         field1 = self._field(page=page, ordinal=1)
@@ -338,6 +339,7 @@ class ViewTests(SimpleTests):
         self.response_302()
 
     def test_field_move_down(self):
+        """Verify survey creator can move a field down"""
         self.survey = self._survey()
         page = self._page()
         field1 = self._field(page=page, ordinal=1)
@@ -349,6 +351,7 @@ class ViewTests(SimpleTests):
         self.assertTrue(field2.ordinal < field1.ordinal)
 
     def test_survey_results_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
         survey = self._survey()
         not_creator = self.make_user("not_creator")
         with self.login(not_creator):
@@ -356,6 +359,7 @@ class ViewTests(SimpleTests):
             self.response_403()
 
     def test_survey_results(self):
+        """Verify survey creator can obtain survey results"""
         survey = self._survey()
         with self.login(self.user):
             self.get("formly:survey_results", pk=survey.pk)
@@ -368,11 +372,11 @@ class ViewTests(SimpleTests):
         page = self._page()
         field = self._field(page=page)
         with self.login(not_creator):
-            self.get("formly:page_update", pk=field.pk)
+            self.post("formly:field_add_choice", pk=field.pk)
             self.response_403()
 
     def test_field_add_choice(self):
-        """Verify user can update page"""
+        """Verify survey creator can add field choice"""
         self.survey = self._survey()
         page1 = self._page()
         field1 = self._field(page=page1)
@@ -386,7 +390,7 @@ class ViewTests(SimpleTests):
             self.assertEqual(FieldChoice.objects.count(), original_choices + 1)
 
     def test_field_add_choice_bad_data(self):
-        """Verify user can update page"""
+        """Verify survey creator sees expected response with bad POST data"""
         self.survey = self._survey()
         page1 = self._page()
         field1 = self._field(page=page1)

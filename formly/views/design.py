@@ -23,7 +23,7 @@ except ImportError:
 @login_required
 def survey_list(request):
     if not request.user.has_perm("formly.view_survey_list"):
-        raise PermissionDenied()  # pragma: no cover
+        raise PermissionDenied()  # pragma: no cover -> never invoked because @login_required
 
     return render(
         request,
@@ -76,7 +76,7 @@ def page_detail(request, pk):
 @login_required
 def survey_create(request):
     if not request.user.has_perm("formly.create_survey"):
-        raise PermissionDenied()  # pragma: no cover
+        raise PermissionDenied()  # pragma: no cover -> never invoked because @login_required
 
     if request.method == "POST":
         form = SurveyCreateForm(request.POST, user=request.user)

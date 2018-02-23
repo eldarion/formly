@@ -1,6 +1,6 @@
 {% extends "formly/design/survey_edit_base.html" %}
 
-{% load bootstrap_tags %}
+{% load bootstrap %}
 
 {% block body %}
 
@@ -12,7 +12,7 @@
 <form action="{% url "formly:choice_update" pk=choice.pk %}" method="post">
     {% csrf_token %}
     <fieldset>
-        {{ form|as_bootstrap }}
+        {{ form|bootstrap }}
     </fieldset>
     <div class="form-actions">
         <button type="submit" class="btn btn-primary">Save</button>

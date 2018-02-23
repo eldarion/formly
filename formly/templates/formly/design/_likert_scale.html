@@ -1,5 +1,5 @@
 <div class="list-group-item">
-    <a class="btn {% if scale == selected_field.scale %}btn-primary{% else %}btn-default{% endif %} btn-xs pull-right ajax" data-method="post" data-replace-closest=".likert-scales" href="{% url "formly_dt_ajax_likert_scale_set" selected_field.pk scale.pk %}">
+    <a class="btn {% if scale == selected_field.scale %}btn-primary{% else %}btn-default{% endif %} btn-xs pull-right ajax" data-method="post" data-replace-closest=".likert-scales" href="{% url "formly:ajax_likert_scale_set" selected_field.pk scale.pk %}">
         <i class="fa fa-fw fa-check"></i>
     </a>
     <div>

@@ -1,7 +1,7 @@
 from django import forms
 
 from ..hooks import hookset
-from ..models import Survey, Page, Field, FieldChoice, OrdinalScale
+from ..models import Field, FieldChoice, OrdinalScale, Page, Survey
 
 
 class SurveyCreateForm(forms.ModelForm):

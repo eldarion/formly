@@ -1,6 +1,12 @@
 import json
 
-from ..models import Field, FieldChoice, Page, Survey
+from ..models import (
+    Field,
+    FieldChoice,
+    OrdinalScale,
+    Page,
+    Survey,
+)
 from .mixins import SimpleTests
 
 
@@ -22,8 +28,6 @@ class ViewTests(SimpleTests):
 
     def test_survey_list_anonymous(self):
         """Verify anonymous user is redirected"""
-        self._survey()
-        self._survey()
         self.get("formly:survey_list")
         self.response_302()
 
@@ -119,12 +123,7 @@ class ViewTests(SimpleTests):
 
     def test_survey_change_name_anonymous(self):
         """Verify anonymous user is redirected"""
-        survey = self._survey()
-        survey_name = "Excellent Survey"
-        post_data = {
-            "name": survey_name
-        }
-        self.post("formly:survey_change_name", pk=survey.pk, data=post_data)
+        self.post("formly:survey_change_name", pk=55)
         self.response_302()
 
     def test_survey_publish_creator(self):
@@ -189,8 +188,7 @@ class ViewTests(SimpleTests):
 
     def test_page_create_anonymous_post(self):
         """Verify anonymous user is redirected"""
-        survey = self._survey()
-        self.post("formly:page_create", pk=survey.pk)
+        self.post("formly:page_create", pk=55)
         self.response_302()
 
     def test_page_create_post(self):
@@ -211,9 +209,7 @@ class ViewTests(SimpleTests):
 
     def test_field_create_anonymous_post(self):
         """Verify anonymous user is redirected"""
-        survey = self._survey()
-        page = self._page(survey=survey)
-        self.post("formly:field_create", pk=page.pk)
+        self.post("formly:field_create", pk=55)
         self.response_302()
 
     def test_field_create_post(self):
@@ -302,10 +298,7 @@ class ViewTests(SimpleTests):
 
     def test_field_move_up_anonymous_post(self):
         """Verify anonymous user is redirected"""
-        self.survey = self._survey()
-        page = self._page()
-        field = self._field(page=page)
-        self.post("formly:field_move_up", pk=field.pk)
+        self.post("formly:field_move_up", pk=55)
         self.response_302()
 
     def test_field_move_up(self):
@@ -332,10 +325,7 @@ class ViewTests(SimpleTests):
 
     def test_field_move_down_anonymous_post(self):
         """Verify anonymous user is redirected"""
-        self.survey = self._survey()
-        page = self._page()
-        field = self._field(page=page)
-        self.post("formly:field_move_down", pk=field.pk)
+        self.post("formly:field_move_down", pk=55)
         self.response_302()
 
     def test_field_move_down(self):
@@ -401,3 +391,298 @@ class ViewTests(SimpleTests):
             self.post("formly:field_add_choice", pk=field1.pk, data=post_data)
             self.response_200()
             self.assertTemplateUsed(template_name="formly/design/survey_list.html")
+
+    def test_likert_scale_set_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:ajax_likert_scale_set", field_pk=55, scale_pk=56)
+        self.response_302()
+
+    def test_likert_scale_set(self):
+        """Verify authenticated user can set a field ordinal scale"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.LIKERT_FIELD)
+        scale = self._ordinal_scale(kind=OrdinalScale.ORDINAL_KIND_LIKERT)
+        self.assertFalse(field.scale)  # ensure no scale associated
+        with self.login(self.user):
+            self.post("formly:ajax_likert_scale_set", field_pk=field.pk, scale_pk=scale.pk)
+        field.refresh_from_db()
+        self.assertEqual(field.scale, scale)
+        self.assertTemplateUsed(template_name="formly/design/_likert_scales.html")
+
+    def test_likert_scale_create_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:ajax_likert_scale_create", field_pk=55)
+        self.response_302()
+
+    def test_likert_scale_create(self):
+        """Verify authenticated user can create a field ordinal scale"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.LIKERT_FIELD)
+        self.assertFalse(field.scale)  # ensure no scale associated
+        post_data = dict(
+            name="Tiny Scale",
+            scale="1,2,3",
+        )
+        with self.login(self.user):
+            self.post("formly:ajax_likert_scale_create", field_pk=field.pk, data=post_data)
+        field.refresh_from_db()
+        self.assertTrue(field.scale)
+        self.assertEqual(field.scale.kind, OrdinalScale.ORDINAL_KIND_LIKERT)
+        self.assertTemplateUsed(template_name="formly/design/_likert_scale_form.html")
+        self.assertTemplateUsed(template_name="formly/design/_likert_scales.html")
+
+    def test_rating_scale_set_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:ajax_rating_scale_set", field_pk=55, scale_pk=56)
+        self.response_302()
+
+    def test_rating_scale_set(self):
+        """Verify authenticated user can set a field ordinal scale"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.RATING_FIELD)
+        scale = self._ordinal_scale(kind=OrdinalScale.ORDINAL_KIND_RATING)
+        self.assertFalse(field.scale)  # ensure no scale associated
+        with self.login(self.user):
+            self.post("formly:ajax_rating_scale_set", field_pk=field.pk, scale_pk=scale.pk)
+        field.refresh_from_db()
+        self.assertEqual(field.scale, scale)
+        self.assertTemplateUsed(template_name="formly/design/_rating_scales.html")
+
+    def test_rating_scale_create_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:ajax_rating_scale_create", field_pk=55)
+        self.response_302()
+
+    def test_rating_scale_create(self):
+        """Verify authenticated user can create a field ordinal scale"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.RATING_FIELD)
+        self.assertFalse(field.scale)  # ensure no scale associated
+        post_data = dict(
+            name="Bigger Scale",
+            scale="1,2,3,4,5,6",
+        )
+        with self.login(self.user):
+            self.post("formly:ajax_rating_scale_create", field_pk=field.pk, data=post_data)
+        field.refresh_from_db()
+        self.assertTrue(field.scale)
+        self.assertEqual(field.scale.kind, OrdinalScale.ORDINAL_KIND_RATING)
+        self.assertTemplateUsed(template_name="formly/design/_rating_scale_form.html")
+        self.assertTemplateUsed(template_name="formly/design/_rating_scales.html")
+
+    def test_field_update_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:field_update", pk=55)
+        self.response_302()
+
+    def test_field_update_bad_data(self):
+        """Verify expected response when POST data is bad/incomplete"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.RATING_FIELD)
+        post_data = dict(
+            field_type=Field.TEXT_FIELD,
+            expected_answers=1,
+        )
+        with self.login(self.user):
+            self.post("formly:field_update", pk=field.pk, data=post_data)
+            self.response_200()
+            self.assertTemplateUsed(template_name="formly/design/survey_list.html")
+
+    def test_field_update(self):
+        """Verify field is updated as expected"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page, field_type=Field.RATING_FIELD)
+        post_data = dict(
+            action="field_update",
+            label="Field Hockey",
+            field_type=Field.TEXT_FIELD,
+            expected_answers=1,
+        )
+        with self.login(self.user):
+            self.post("formly:field_update", pk=field.pk, data=post_data)
+            self.assertRedirects(self.last_response, field.get_absolute_url())
+
+    def test_field_update_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(not_creator):
+            self.post("formly:field_update", pk=field.pk)
+            self.response_403()
+
+    def test_choice_delete_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:ajax_choice_delete", pk=55)
+        self.response_302()
+
+    def test_choice_delete_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        with self.login(not_creator):
+            self.post("formly:ajax_choice_delete", pk=choice.pk)
+            self.response_403()
+
+    def test_choice_delete(self):
+        """Verify survey creator can delete field choice"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        self.assertIn(choice, field.choices.all())
+        self.assertEqual(field.choices.count(), 1)
+        with self.login(self.user):
+            self.post("formly:ajax_choice_delete", pk=choice.pk)
+            self.response_200()
+            self.assertFalse(field.choices.all())
+
+    def test_choice_update_anonymous(self):
+        """Verify anonymous user is redirected"""
+        self.post("formly:choice_update", pk=55)
+        self.response_302()
+
+    def test_choice_update_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        with self.login(not_creator):
+            self.post("formly:choice_update", pk=choice.pk)
+            self.response_403()
+
+    def test_choice_update_get(self):
+        """Verify survey creator can access field choice update"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        with self.login(self.user):
+            self.get("formly:choice_update", pk=choice.pk)
+            self.response_200()
+            self.assertTemplateUsed(template_name="formly/design/choice_form.html")
+
+    def test_choice_update(self):
+        """Verify survey creator can update field choice"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        post_data = dict(
+            label="New Choice",
+        )
+        with self.login(self.user):
+            self.post("formly:choice_update", pk=choice.pk, data=post_data)
+            choice.refresh_from_db()
+            self.assertEqual(choice.label, post_data["label"])
+
+    def test_survey_delete_view(self):
+        """Verify survey creator can delete survey"""
+        self.survey = self._survey()
+        with self.login(self.user):
+            self.post("formly:survey_delete", pk=self.survey.pk)
+            self.assertFalse(Survey.objects.count())
+
+    def test_survey_delete_view_not_creator(self):
+        """Verify user who didn't create survey is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        with self.login(not_creator):
+            self.post("formly:survey_delete", pk=self.survey.pk)
+            self.response_403()
+
+    def test_page_delete_view(self):
+        """Verify survey creator can delete survey"""
+        self.survey = self._survey()
+        page = self._page()
+        with self.login(self.user):
+            self.post("formly:page_delete", pk=page.pk)
+            self.assertFalse(Page.objects.count())
+
+    def test_page_delete_view_not_creator(self):
+        """Verify user who didn't create page is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        with self.login(not_creator):
+            self.post("formly:page_delete", pk=page.pk)
+            self.response_403()
+
+    def test_field_delete_view(self):
+        """Verify survey creator can delete survey"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(self.user):
+            self.post("formly:field_delete", pk=field.pk)
+            self.assertFalse(Field.objects.count())
+
+    def test_field_delete_view_not_creator(self):
+        """Verify user who didn't create field is not allowed"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        with self.login(not_creator):
+            self.post("formly:field_delete", pk=field.pk)
+            self.response_403()
+
+    def test_choice_delete_view(self):
+        """Verify survey creator can delete survey"""
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        with self.login(self.user):
+            self.post("formly:choice_delete", pk=choice.pk)
+            self.assertFalse(FieldChoice.objects.count())
+
+    def test_choice_delete_view_not_creator(self):
+        """Verify survey creator can delete survey"""
+        not_creator = self.make_user("not_creator")
+        self.survey = self._survey()
+        page = self._page()
+        field = self._field(page=page)
+        choice = self._fieldchoice(field=field)
+        with self.login(not_creator):
+            self.post("formly:choice_delete", pk=choice.pk)
+            self.response_403()
+
+    def test_take_survey(self):
+        self.survey = self._survey()
+        page1 = self._page()
+        field1 = self._field(page=page1)
+        page2 = self._page()
+        field2 = self._field(page=page2)
+        survey_taker = self.make_user("survey_taker")
+        with self.login(survey_taker):
+            # Start the survey
+            self.get("formly:take_survey", pk=self.survey.pk)
+
+            # Post answers to first page
+            post_data = {
+                "{}".format(field1.name): "Five",
+            }
+            self.post("formly:take_survey", pk=self.survey.pk, data=post_data)
+            self.assertRedirects(self.last_response, self.survey.get_run_url())
+
+            # Post answers to second page
+            post_data = {
+                "{}".format(field2.name): "Six",
+            }
+            self.post("formly:take_survey", pk=self.survey.pk, data=post_data)
+            self.response_302()
+            self.assertEqual(field1.results.get().answer, {"answer": "Five"})
+            self.assertEqual(field2.results.get().answer, {"answer": "Six"})

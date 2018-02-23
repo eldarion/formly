@@ -1,7 +1,5 @@
-import json
-
 from django.core.exceptions import PermissionDenied
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views.decorators.http import require_POST
@@ -25,12 +23,15 @@ except ImportError:
 @login_required
 def survey_list(request):
     if not request.user.has_perm("formly.view_survey_list"):
-        raise PermissionDenied()
+        raise PermissionDenied()  # pragma: no cover -> never invoked because @login_required
 
-    return render(request, "formly/design/survey_list.html", {
-        "surveys": Survey.objects.all().order_by("-created"),
-        "survey_form": SurveyCreateForm(user=request.user)
-    })
+    return render(
+        request,
+        "formly/design/survey_list.html",
+        context={
+            "surveys": Survey.objects.all().order_by("-created"),
+            "survey_form": SurveyCreateForm(user=request.user)
+        })
 
 
 @login_required
@@ -40,12 +41,16 @@ def survey_detail(request, pk):
     if not request.user.has_perm("formly.view_survey_detail", obj=survey):
         raise PermissionDenied()
 
-    return render(request, "formly/design/survey_list.html", {
-        "surveys": Survey.objects.all().order_by("-created"),
-        "survey_form": SurveyCreateForm(user=request.user),
-        "pages": survey.pages.all(),
-        "selected_survey": survey
-    })
+    response = render(
+        request,
+        "formly/design/survey_list.html",
+        context={
+            "surveys": Survey.objects.all().order_by("-created"),
+            "survey_form": SurveyCreateForm(user=request.user),
+            "pages": survey.pages.all(),
+            "selected_survey": survey
+        })
+    return response
 
 
 @login_required
@@ -55,20 +60,23 @@ def page_detail(request, pk):
     if not request.user.has_perm("formly.view_survey_detail", obj=page.survey):
         raise PermissionDenied()
 
-    return render(request, "formly/design/survey_list.html", {
-        "surveys": Survey.objects.all().order_by("-created"),
-        "survey_form": SurveyCreateForm(user=request.user),
-        "pages": page.survey.pages.all(),
-        "selected_page": page,
-        "selected_survey": page.survey,
-        "fields": page.fields.all().order_by("ordinal")
-    })
+    return render(
+        request,
+        "formly/design/survey_list.html",
+        context={
+            "surveys": Survey.objects.all().order_by("-created"),
+            "survey_form": SurveyCreateForm(user=request.user),
+            "pages": page.survey.pages.all(),
+            "selected_page": page,
+            "selected_survey": page.survey,
+            "fields": page.fields.all().order_by("ordinal")
+        })
 
 
 @login_required
 def survey_create(request):
     if not request.user.has_perm("formly.create_survey"):
-        raise PermissionDenied()
+        raise PermissionDenied()  # pragma: no cover -> never invoked because @login_required
 
     if request.method == "POST":
         form = SurveyCreateForm(request.POST, user=request.user)
@@ -78,9 +86,12 @@ def survey_create(request):
     else:
         form = SurveyCreateForm(user=request.user)
 
-    return render(request, "formly/design/survey_form.html", {
-        "form": form,
-    })
+    return render(
+        request,
+        "formly/design/survey_form.html",
+        context={
+            "form": form,
+        })
 
 
 @require_POST
@@ -97,10 +108,10 @@ def survey_change_name(request, pk):
 
     survey.name = request.POST.get("name")
     survey.save()
-    return HttpResponse(json.dumps({
+    return JsonResponse({
         "status": "OK",
         "name": survey.name
-    }), mimetype="application/json")
+    })
 
 
 @require_POST
@@ -112,7 +123,7 @@ def survey_publish(request, pk):
         raise PermissionDenied()
 
     survey.publish()
-    return redirect("formly_dt_survey_list")
+    return redirect("formly:survey_list")
 
 
 @require_POST
@@ -124,7 +135,7 @@ def survey_duplicate(request, pk):
         raise PermissionDenied()
 
     duped = survey.duplicate()
-    return redirect("formly_dt_survey_detail", pk=duped.pk)
+    return redirect("formly:survey_detail", pk=duped.pk)
 
 
 @require_POST
@@ -141,7 +152,7 @@ def page_create(request, pk):
 
 @require_POST
 @login_required
-def fields_create(request, pk):
+def field_create(request, pk):
     page = get_object_or_404(Page, pk=pk)
 
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):
@@ -159,7 +170,7 @@ def fields_create(request, pk):
 
 @login_required
 def page_update(request, pk):
-    # @@@ break this apart into seperate views
+    # @@@ break this apart into separate views
     page = get_object_or_404(Page, pk=pk)
 
     if not request.user.has_perm("formly.edit_survey", obj=page.survey):
@@ -174,7 +185,7 @@ def page_update(request, pk):
                 return redirect(page)
         if request.POST.get("action") == "field_add":
             form = PageUpdateForm(instance=page)
-            field_form = FieldForm(request.POST, prefix="fields")
+            field_form = FieldForm(data=request.POST, prefix="fields")
             if field_form.is_valid():
                 field = field_form.save(commit=False)
                 field.page = page
@@ -184,11 +195,14 @@ def page_update(request, pk):
     else:
         form = PageUpdateForm(instance=page)
         field_form = FieldForm(prefix="fields")
-    return render(request, "formly/design/page_form.html", {
-        "form": form,
-        "page": page,
-        "field_form": field_form
-    })
+    return render(
+        request,
+        "formly/design/page_form.html",
+        context={
+            "form": form,
+            "page": page,
+            "field_form": field_form
+        })
 
 
 @require_POST
@@ -204,12 +218,12 @@ def field_move_up(request, pk):
     data = {
         "html": render_to_string(
             "formly/design/_fields.html",
-            {
+            context={
                 "selected_page": field.page,
                 "fields": field.page.fields.all().order_by("ordinal"),
                 "selected_field": field
             },
-            request
+            request=request
         )
     }
     return JsonResponse(data)
@@ -228,12 +242,12 @@ def field_move_down(request, pk):
     data = {
         "html": render_to_string(
             "formly/design/_fields.html",
-            {
+            context={
                 "selected_page": field.page,
                 "fields": field.page.fields.all().order_by("ordinal"),
                 "selected_field": field
             },
-            request
+            request=request
         )
     }
     return JsonResponse(data)
@@ -257,17 +271,20 @@ def field_add_choice(request, pk):
         choice.save()
         return redirect(field)
     form = FieldForm(instance=field)
-    return render(request, "formly/design/survey_list.html", {
-        "surveys": Survey.objects.all().order_by("-created"),
-        "survey_form": SurveyCreateForm(user=request.user),
-        "pages": field.page.survey.pages.all(),
-        "selected_page": field.page,
-        "selected_survey": field.survey,
-        "fields": field.page.fields.all().order_by("ordinal"),
-        "selected_field": field,
-        "field_form": form,
-        "field_choice_form": field_choice_form
-    })
+    return render(
+        request,
+        "formly/design/survey_list.html",
+        context={
+            "surveys": Survey.objects.all().order_by("-created"),
+            "survey_form": SurveyCreateForm(user=request.user),
+            "pages": field.page.survey.pages.all(),
+            "selected_page": field.page,
+            "selected_survey": field.survey,
+            "fields": field.page.fields.all().order_by("ordinal"),
+            "selected_field": field,
+            "field_form": form,
+            "field_choice_form": field_choice_form
+        })
 
 
 @require_POST
@@ -278,7 +295,14 @@ def likert_scale_set(request, field_pk, scale_pk):
     field.scale = scale
     field.save()
     return JsonResponse({
-        "html": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT)}, request)
+        "html": render_to_string(
+            "formly/design/_likert_scales.html",
+            context={
+                "selected_field": field,
+                "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT)
+            },
+            request=request
+        )
     })
 
 
@@ -303,9 +327,23 @@ def likert_scale_create(request, field_pk):
         field.save()
         likert_scale_form = OrdinalScaleForm()
     return JsonResponse({
-        "html": render_to_string("formly/design/_likert_scale_form.html", {"selected_field": field, "likert_scale_form": likert_scale_form}, request),
+        "html": render_to_string(
+            "formly/design/_likert_scale_form.html",
+            context={
+                "selected_field": field,
+                "likert_scale_form": likert_scale_form,
+            },
+            request=request
+        ),
         "fragments": {
-            ".likert-scales": render_to_string("formly/design/_likert_scales.html", {"selected_field": field, "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT)}, request)
+            ".likert-scales": render_to_string(
+                "formly/design/_likert_scales.html",
+                context={
+                    "selected_field": field,
+                    "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT),
+                },
+                request=request
+            )
         }
     })
 
@@ -318,7 +356,14 @@ def rating_scale_set(request, field_pk, scale_pk):
     field.scale = scale
     field.save()
     return JsonResponse({
-        "html": render_to_string("formly/design/_rating_scales.html", {"selected_field": field, "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)}, request)
+        "html": render_to_string(
+            "formly/design/_rating_scales.html",
+            context={
+                "selected_field": field,
+                "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)
+            },
+            request=request
+        )
     })
 
 
@@ -341,9 +386,23 @@ def rating_scale_create(request, field_pk):
         field.save()
         rating_scale_form = OrdinalScaleForm()
     return JsonResponse({
-        "html": render_to_string("formly/design/_rating_scale_form.html", {"selected_field": field, "rating_scale_form": rating_scale_form}, request),
+        "html": render_to_string(
+            "formly/design/_rating_scale_form.html",
+            context={
+                "selected_field": field,
+                "rating_scale_form": rating_scale_form
+            },
+            request=request
+        ),
         "fragments": {
-            ".rating-scales": render_to_string("formly/design/_rating_scales.html", {"selected_field": field, "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)}, request)
+            ".rating-scales": render_to_string(
+                "formly/design/_rating_scales.html",
+                context={
+                    "selected_field": field,
+                    "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING)
+                },
+                request=request
+            )
         }
     })
 
@@ -362,27 +421,35 @@ def field_update(request, pk):
             if form.is_valid():
                 form.save()
                 return redirect(field)
+        else:
+            form = FieldForm(instance=field)
+            field_choice_form = FieldChoiceForm(prefix="choices")
+            likert_scale_form = OrdinalScaleForm()
+            rating_scale_form = OrdinalScaleForm()
     else:
         form = FieldForm(instance=field)
         field_choice_form = FieldChoiceForm(prefix="choices")
         likert_scale_form = OrdinalScaleForm()
         rating_scale_form = OrdinalScaleForm()
 
-    return render(request, "formly/design/survey_list.html", {
-        "surveys": Survey.objects.all().order_by("-created"),
-        "survey_form": SurveyCreateForm(user=request.user),
-        "pages": field.page.survey.pages.all(),
-        "selected_page": field.page,
-        "selected_survey": field.survey,
-        "fields": field.page.fields.all().order_by("ordinal"),
-        "selected_field": field,
-        "field_form": form,
-        "field_choice_form": field_choice_form,
-        "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT),
-        "likert_scale_form": likert_scale_form,
-        "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING),
-        "rating_scale_form": rating_scale_form
-    })
+    return render(
+        request,
+        "formly/design/survey_list.html",
+        context={
+            "surveys": Survey.objects.all().order_by("-created"),
+            "survey_form": SurveyCreateForm(user=request.user),
+            "pages": field.page.survey.pages.all(),
+            "selected_page": field.page,
+            "selected_survey": field.survey,
+            "fields": field.page.fields.all().order_by("ordinal"),
+            "selected_field": field,
+            "field_form": form,
+            "field_choice_form": field_choice_form,
+            "likert_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_LIKERT),
+            "likert_scale_form": likert_scale_form,
+            "rating_scales": OrdinalScale.objects.filter(kind=OrdinalScale.ORDINAL_KIND_RATING),
+            "rating_scale_form": rating_scale_form
+        })
 
 
 @require_POST
@@ -413,31 +480,34 @@ def choice_update(request, pk):
     else:
         form = FieldChoiceForm(instance=choice)
 
-    return render(request, "formly/design/choice_form.html", {
-        "form": form,
-        "choice": choice,
-        "page": choice.field.page
-    })
+    return render(
+        request,
+        "formly/design/choice_form.html",
+        context={
+            "form": form,
+            "choice": choice,
+            "page": choice.field.page
+        })
 
 
-class SurveyDeleteView(BaseDeleteView):
+class SurveyDelete(BaseDeleteView):
     model = Survey
-    success_url_name = "formly_dt_survey_list"
+    success_url_name = "formly:survey_list"
 
 
-class PageDeleteView(BaseDeleteView):
+class PageDelete(BaseDeleteView):
     model = Page
-    success_url_name = "formly_dt_survey_detail"
+    success_url_name = "formly:survey_detail"
     pk_obj_name = "survey"
 
 
-class FieldDeleteView(BaseDeleteView):
+class FieldDelete(BaseDeleteView):
     model = Field
-    success_url_name = "formly_dt_page_update"
+    success_url_name = "formly:page_update"
     pk_obj_name = "page"
 
 
-class ChoiceDeleteView(BaseDeleteView):
+class ChoiceDelete(BaseDeleteView):
     model = FieldChoice
-    success_url_name = "formly_dt_field_update"
+    success_url_name = "formly:field_update"
     pk_obj_name = "field"

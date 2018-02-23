@@ -1,6 +1,6 @@
 {% if selected_survey %}
 <h2>Pages</h2>
-<form action="{% url "formly_dt_page_create" pk=selected_survey.pk %}" method="post">
+<form action="{% url "formly:page_create" pk=selected_survey.pk %}" method="post">
     {% csrf_token %}
     <button class="btn btn-mini btn-block btn-default"><i class="fa fa-fw fa-plus"></i> Add Page</button>
 </form>

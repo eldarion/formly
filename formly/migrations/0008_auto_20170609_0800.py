@@ -10,6 +10,7 @@ class Migration(migrations.Migration):
     dependencies = [
         ('formly', '0007_help_text_and_label_to_textfield'),
     ]
+    atomic = False
 
     operations = [
         migrations.RenameModel(

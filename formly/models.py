@@ -3,10 +3,10 @@ from __future__ import unicode_literals
 from django import forms
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
 from django.db import models
 from django.db.models import Max
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.encoding import python_2_unicode_compatible
 
@@ -34,12 +34,12 @@ class OrdinalScale(models.Model):
 
 @python_2_unicode_compatible
 class OrdinalChoice(models.Model):
-    scale = models.ForeignKey(OrdinalScale, related_name="choices")
+    scale = models.ForeignKey(OrdinalScale, related_name="choices", on_delete=models.CASCADE)
     label = models.CharField(max_length=100)
     score = models.IntegerField()
 
     def __str__(self):
-        return "{} ({})".format(self.label, self.score)
+        return "{} ({})".format(self.label, self.score)  # pragma: no cover
 
     class Meta:
         unique_together = [("scale", "score"), ("scale", "label")]
@@ -48,7 +48,7 @@ class OrdinalChoice(models.Model):
 @python_2_unicode_compatible
 class Survey(models.Model):
     name = models.CharField(max_length=255)
-    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="surveys")
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="surveys", on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now)
     updated = models.DateTimeField(default=timezone.now)
     published = models.DateTimeField(null=True, blank=True)
@@ -59,10 +59,13 @@ class Survey(models.Model):
         return super(Survey, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.name
+        return self.name  # pragma: no cover
 
     def get_absolute_url(self):
-        return reverse("formly_dt_survey_detail", kwargs={"pk": self.pk})
+        return reverse("formly:survey_detail", kwargs={"pk": self.pk})
+
+    def get_run_url(self):
+        return reverse("formly:take_survey", kwargs={"pk": self.pk})
 
     def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
@@ -137,11 +140,11 @@ class Survey(models.Model):
 
 @python_2_unicode_compatible
 class Page(models.Model):
-    survey = models.ForeignKey(Survey, related_name="pages")
+    survey = models.ForeignKey(Survey, related_name="pages", on_delete=models.CASCADE)
     page_num = models.PositiveIntegerField(null=True, blank=True)
     subtitle = models.CharField(max_length=255, blank=True)
     # Should be null when a FieldChoice on it's last field has a target.
-    target = models.ForeignKey("self", null=True, blank=True)
+    target = models.ForeignKey("self", null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         unique_together = [
@@ -156,7 +159,7 @@ class Page(models.Model):
         return super(Page, self).save(*args, **kwargs)
 
     def __str__(self):
-        return self.label()
+        return self.label()  # pragma: no cover
 
     def label(self):
         if self.subtitle:
@@ -165,35 +168,7 @@ class Page(models.Model):
             return "Page %d" % self.page_num
 
     def get_absolute_url(self):
-        return reverse("formly_dt_page_detail", kwargs={"pk": self.pk})
-
-    def move_up(self):
-        try:
-            other_field = self.survey.pages.order_by("-page_num").filter(
-                page_num__lt=self.page_num
-            )[0]
-            existing = self.page_num
-            other = other_field.page_num
-            self.page_num = other
-            other_field.page_num = existing
-            other_field.save()
-            self.save()
-        except IndexError:
-            return
-
-    def move_down(self):
-        try:
-            other_field = self.page.fields.order_by("page_num").filter(
-                page_num__gt=self.page_num
-            )[0]
-            existing = self.page_num
-            other = other_field.page_num
-            self.page_num = other
-            other_field.page_num = existing
-            other_field.save()
-            self.save()
-        except IndexError:
-            return
+        return reverse("formly:page_detail", kwargs={"pk": self.pk})
 
     def next_page(self, user):
         target = self
@@ -249,11 +224,11 @@ class Field(models.Model):
         (RATING_FIELD, "Rating Scale")
     ]
 
-    survey = models.ForeignKey(Survey, related_name="fields")  # Denorm
-    page = models.ForeignKey(Page, null=True, blank=True, related_name="fields")
+    survey = models.ForeignKey(Survey, related_name="fields", on_delete=models.CASCADE)  # Denorm
+    page = models.ForeignKey(Page, null=True, blank=True, related_name="fields", on_delete=models.SET_NULL)
     label = models.TextField()
     field_type = models.IntegerField(choices=FIELD_TYPE_CHOICES)
-    scale = models.ForeignKey(OrdinalScale, default=None, null=True, blank=True, related_name="fields")
+    scale = models.ForeignKey(OrdinalScale, default=None, null=True, blank=True, related_name="fields", on_delete=models.SET_NULL)
     help_text = models.TextField(blank=True)
     ordinal = models.IntegerField()
     maximum_choices = models.IntegerField(null=True, blank=True)
@@ -273,6 +248,9 @@ class Field(models.Model):
     #             )
 
     def save(self, *args, **kwargs):
+        if not self.ordinal:
+            # Set ordinal, since full_clean() will fail if not set
+            self.ordinal = 1
         self.full_clean()
         if not self.pk and self.page is not None:
             self.ordinal = (self.page.fields.aggregate(
@@ -317,7 +295,7 @@ class Field(models.Model):
         )
 
     def get_absolute_url(self):
-        return reverse("formly_dt_field_update", kwargs={"pk": self.pk})
+        return reverse("formly:field_update", kwargs={"pk": self.pk})
 
     @property
     def needs_choices(self):
@@ -432,9 +410,9 @@ FIELD_TYPES = {
 
 @python_2_unicode_compatible
 class FieldChoice(models.Model):
-    field = models.ForeignKey(Field, related_name="choices")
+    field = models.ForeignKey(Field, related_name="choices", on_delete=models.CASCADE)
     label = models.CharField(max_length=100)
-    target = models.ForeignKey(Field, null=True, blank=True, related_name="target_choices")
+    target = models.ForeignKey(Field, null=True, blank=True, related_name="target_choices", on_delete=models.SET_NULL)
 
     def clean(self):
         super(FieldChoice, self).clean()
@@ -454,8 +432,8 @@ class FieldChoice(models.Model):
 
 @python_2_unicode_compatible
 class SurveyResult(models.Model):
-    survey = models.ForeignKey(Survey, related_name="survey_results")
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="survey_results")
+    survey = models.ForeignKey(Survey, related_name="survey_results", on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="survey_results", on_delete=models.CASCADE)
     date_submitted = models.DateTimeField(default=timezone.now)
 
     def get_absolute_url(self):
@@ -467,10 +445,10 @@ class SurveyResult(models.Model):
 
 @python_2_unicode_compatible
 class FieldResult(models.Model):
-    survey = models.ForeignKey(Survey, related_name="results")  # Denorm
-    page = models.ForeignKey(Page, related_name="results")  # Denorm
-    result = models.ForeignKey(SurveyResult, related_name="results")
-    question = models.ForeignKey(Field, related_name="results")
+    survey = models.ForeignKey(Survey, related_name="results", on_delete=models.CASCADE)  # Denorm
+    page = models.ForeignKey(Page, related_name="results", on_delete=models.CASCADE)  # Denorm
+    result = models.ForeignKey(SurveyResult, related_name="results", on_delete=models.CASCADE)
+    question = models.ForeignKey(Field, related_name="results", on_delete=models.CASCADE)
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
 

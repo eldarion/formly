@@ -1,19 +1,10 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
-from django.utils.decorators import method_decorator
+from django.urls import reverse
 from django.views.generic import DeleteView
 
 
-def cbv_decorator(decorator):
-    def _decorator(cls):
-        cls.dispatch = method_decorator(decorator)(cls.dispatch)
-        return cls
-    return _decorator
-
-
-@cbv_decorator(login_required)
-class BaseDeleteView(DeleteView):
+class BaseDeleteView(LoginRequiredMixin, DeleteView):
     success_url_name = ""
     pk_obj_name = ""
 

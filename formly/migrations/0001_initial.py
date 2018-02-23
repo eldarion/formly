@@ -34,8 +34,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('label', models.CharField(max_length=100)),
-                ('field', models.ForeignKey(related_name='choices', to='formly.Field')),
-                ('target', models.ForeignKey(related_name='target_choices', blank=True, to='formly.Field', null=True)),
+                ('field', models.ForeignKey(related_name='choices', to='formly.Field', on_delete=models.CASCADE)),
+                ('target', models.ForeignKey(related_name='target_choices', blank=True, to='formly.Field', null=True, on_delete=models.SET_NULL)),
             ],
         ),
         migrations.CreateModel(
@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(default=django.utils.timezone.now)),
                 ('updated', models.DateTimeField(default=django.utils.timezone.now)),
                 ('published', models.DateTimeField(null=True, blank=True)),
-                ('creator', models.ForeignKey(related_name='surveys', to=settings.AUTH_USER_MODEL)),
+                ('creator', models.ForeignKey(related_name='surveys', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.CreateModel(
@@ -76,49 +76,49 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('date_submitted', models.DateTimeField(default=django.utils.timezone.now)),
-                ('survey', models.ForeignKey(related_name='survey_results', to='formly.Survey')),
-                ('user', models.ForeignKey(related_name='survey_results', to=settings.AUTH_USER_MODEL)),
+                ('survey', models.ForeignKey(related_name='survey_results', to='formly.Survey', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(related_name='survey_results', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
         ),
         migrations.AddField(
             model_name='page',
             name='survey',
-            field=models.ForeignKey(related_name='pages', to='formly.Survey'),
+            field=models.ForeignKey(related_name='pages', to='formly.Survey', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='page',
             name='target',
-            field=models.ForeignKey(blank=True, to='formly.Page', null=True),
+            field=models.ForeignKey(blank=True, to='formly.Page', null=True, on_delete=models.SET_NULL),
         ),
         migrations.AddField(
             model_name='fieldresult',
             name='page',
-            field=models.ForeignKey(related_name='results', to='formly.Page'),
+            field=models.ForeignKey(related_name='results', to='formly.Page', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='fieldresult',
             name='question',
-            field=models.ForeignKey(related_name='results', to='formly.Field'),
+            field=models.ForeignKey(related_name='results', to='formly.Field', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='fieldresult',
             name='result',
-            field=models.ForeignKey(related_name='results', to='formly.SurveyResult'),
+            field=models.ForeignKey(related_name='results', to='formly.SurveyResult', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='fieldresult',
             name='survey',
-            field=models.ForeignKey(related_name='results', to='formly.Survey'),
+            field=models.ForeignKey(related_name='results', to='formly.Survey', on_delete=models.CASCADE),
         ),
         migrations.AddField(
             model_name='field',
             name='page',
-            field=models.ForeignKey(related_name='fields', blank=True, to='formly.Page', null=True),
+            field=models.ForeignKey(related_name='fields', blank=True, to='formly.Page', null=True, on_delete=models.SET_NULL),
         ),
         migrations.AddField(
             model_name='field',
             name='survey',
-            field=models.ForeignKey(related_name='fields', to='formly.Survey'),
+            field=models.ForeignKey(related_name='fields', to='formly.Survey', on_delete=models.CASCADE),
         ),
         migrations.AlterUniqueTogether(
             name='page',

@@ -9,7 +9,7 @@
   <p class="lead">Please confirm the deletion of this page.</p>
 </header>
 
-<form action="{% url "formly_dt_page_delete" pk=page.pk %}" method="post">
+<form action="{% url "formly:page_delete" pk=page.pk %}" method="post">
     <legend>{{ page }}</legend>
     {% csrf_token %}
      <fieldset>

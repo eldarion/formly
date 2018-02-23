@@ -1,12 +1,6 @@
 import json
 
-from ..models import (
-    Field,
-    FieldChoice,
-    OrdinalScale,
-    Page,
-    Survey,
-)
+from ..models import Field, FieldChoice, OrdinalScale, Page, Survey
 from .mixins import SimpleTests
 
 

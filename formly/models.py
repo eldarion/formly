@@ -64,6 +64,9 @@ class Survey(models.Model):
     def get_absolute_url(self):
         return reverse("formly:survey_detail", kwargs={"pk": self.pk})
 
+    def get_run_url(self):
+        return reverse("formly:take_survey", kwargs={"pk": self.pk})
+
     def duplicate(self):  # @@@ This could like use with some refactoring
         survey = Survey.objects.get(pk=self.pk)
         survey.pk = None

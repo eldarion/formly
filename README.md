@@ -487,6 +487,9 @@ defined in settings.py and ship some sane defaults.
 ## Change Log
 
 ### Unreleased
+_TBD_
+
+### 2.0.0
 * Add the ability to remap `MULTIPLE_TEXT` answers
 * Introduce `FORMLY_TEST_ARGS` pattern to run a restricted version of the test suite
 

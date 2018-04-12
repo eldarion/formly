@@ -8,7 +8,7 @@ from formly.tests.factories import (
     OrdinalScaleFactory,
     PageFactory,
     SurveyFactory,
-    SurveyResultFactory
+    SurveyResultFactory,
 )
 
 

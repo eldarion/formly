@@ -459,6 +459,10 @@ defined in settings.py and ship some sane defaults.
 
 ## Change Log
 
+### Unreleased
+* Introduce `FORMLY_TEST_ARGS` pattern
+* @@@ remapping
+
 ### 1.0.0
 
 * Add Django v1.11, 2.0 support

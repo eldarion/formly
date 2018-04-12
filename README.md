@@ -376,6 +376,33 @@ Displays the results of a given survey.
 Rendered for the end user to complete a particular survey. Always
 rendered with the appropriate page for the user.
 
+#### `formly/results/remap.html`
+
+**Context:** `field`, `unmapped_answers`, `answer_string`
+
+**Extends:** `site_base.html`
+
+Allows the end user to "remap" answers for a `MULTI_TEXT` field, e.g.
+
+```
+# User A's answers to the question,
+# "What are your favorite Central City establishments?"
+
+Big Belly Burger
+Star Labs
+Jitters
+
+# Answers for User B
+
+Big Belty Burger
+STAR labs
+Palmer Technologies
+```
+
+Passing `Big Belly Burger` as the `answer_string` URL argument would allow
+the end user to map `Big Belty Burger` as an answer to `Big Belly Burger`.
+
+
 #### `formly/bootstrapform/field.html`
 
 **Context:** `field`
@@ -460,8 +487,16 @@ defined in settings.py and ship some sane defaults.
 ## Change Log
 
 ### Unreleased
-* Introduce `FORMLY_TEST_ARGS` pattern
-* @@@ remapping
+* Add the ability to remap `MULTIPLE_TEXT` answers
+* Introduce `FORMLY_TEST_ARGS` pattern to run a restricted version of the test suite
+
+**Backwards Incompatible Changes**
+Previously, answers stored in `FieldResult.answer` for `Field`s with the `MULTIPLE_TEXT` field_type were getting serialized to JSON twice.
+
+This release fixes this by:
+- Removing extra serialization/de-serialization from the `compress` and `decompress` methods in the form field / widget
+- Running a data migration that removes the double serialization for existing entries
+
 
 ### 1.0.0
 

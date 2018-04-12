@@ -1,5 +1,3 @@
-import json
-
 from django.forms import TextInput
 from django.forms.widgets import MultiWidget, RadioSelect
 from django.template.loader import render_to_string
@@ -12,7 +10,7 @@ class MultiTextWidget(MultiWidget):
         super(MultiTextWidget, self).__init__(**kwargs)
 
     def decompress(self, value):
-        return json.loads(value) if value is not None else []
+        return value if value is not None else []
 
     def format_output(self, rendered_widgets):
         return render_to_string(

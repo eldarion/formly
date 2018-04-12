@@ -349,6 +349,83 @@ class ViewTests(SimpleTests):
             self.get("formly:survey_results", pk=survey.pk)
             self.assertTemplateUsed(template_name="formly/results/home.html")
 
+    def test_remap_answer_get(self):
+        survey = self._survey()
+        page = self._page(survey=survey)
+        surveyresult = self._surveyresult(survey=survey)
+        field = self._field(
+            page=page,
+            survey=survey,
+            field_type=Field.MULTIPLE_TEXT,
+            expected_answers=4
+        )
+        fieldresult = self._fieldresult(
+            survey=survey,
+            question=field,
+            answer={"answer": ["thing", "thiing", "thang", "tang"]},
+            page=page,
+            result=surveyresult
+        )
+
+        with self.login(self.user):
+            self.get(
+                "formly:survey_results_remap",
+                pk=fieldresult.pk,
+                answer_string="thing",
+            )
+            self.assertTemplateUsed(template_name="formly/results/remap.html")
+
+    def test_remap_answer_post(self):
+        survey = self._survey()
+        page = self._page(survey=survey)
+        surveyresult = self._surveyresult(survey=survey)
+        field = self._field(page=page, survey=survey, field_type=Field.MULTIPLE_TEXT, expected_answers=4)
+        fieldresult = self._fieldresult(
+            survey=survey,
+            question=field,
+            answer={"answer": ["thing", "thiing", "thang", "tang"]},
+            page=page,
+            result=surveyresult
+        )
+        with self.login(self.user):
+            post_data = {
+                "mapping": ["thiing"]
+            }
+            self.post(
+                "formly:survey_results_remap",
+                pk=fieldresult.pk,
+                answer_string="thing",
+                data=post_data,
+            )
+            self.response_302()
+
+    def test_remap_answer_post_ajax(self):
+        survey = self._survey()
+        page = self._page(survey=survey)
+        surveyresult = self._surveyresult(survey=survey)
+        field = self._field(page=page, survey=survey, field_type=Field.MULTIPLE_TEXT, expected_answers=4)
+        fieldresult = self._fieldresult(
+            survey=survey,
+            question=field,
+            answer={"answer": ["thing", "thiing", "thang", "tang"]},
+            page=page,
+            result=surveyresult
+        )
+        with self.login(self.user):
+            post_data = {
+                "mapping": ["thiing"]
+            }
+            self.post(
+                "formly:survey_results_remap",
+                pk=fieldresult.pk,
+                answer_string="thing",
+                data=post_data,
+                extra={
+                    "HTTP_X_REQUESTED_WITH": "XMLHttpRequest"
+                }
+            )
+            self.response_200()
+
     def test_field_add_choice_not_creator(self):
         """Verify user who didn't create survey is not allowed"""
         not_creator = self.make_user("not_creator")

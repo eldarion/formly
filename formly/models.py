@@ -237,6 +237,8 @@ class Field(models.Model):
     required = models.BooleanField(default=False)
     expected_answers = models.PositiveSmallIntegerField(default=1)
 
+    mapping = JSONField(blank=True, default=dict())
+
     # def clean(self):
     #     super(Field, self).clean()
     #     if self.page is None:
@@ -449,6 +451,20 @@ class FieldResult(models.Model):
     question = models.ForeignKey(Field, related_name="results", on_delete=models.CASCADE)
     upload = models.FileField(upload_to="formly/", blank=True)
     answer = JSONField(blank=True)  # @@@ I think this should be something different than a string
+
+    def _update_mapping(self):
+        answer = self.answer["answer"]
+        mapping = dict()
+        for ans in answer:
+            ans = ans.strip().upper()
+            if ans in self.question.mapping:
+                mapping[ans] = self.question.mapping[ans]
+        self.answer["mapping"] = mapping
+
+    def save(self, *args, **kwargs):
+        if self.question.field_type == Field.MULTIPLE_TEXT:
+            self._update_mapping()
+        return super(FieldResult, self).save(*args, **kwargs)
 
     def answer_value(self):
         if self.answer:

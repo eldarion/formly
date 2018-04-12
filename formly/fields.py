@@ -1,5 +1,3 @@
-import json
-
 from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -35,4 +33,4 @@ class MultipleTextField(forms.MultiValueField):
         self.fields_length = fields_length
 
     def compress(self, data_list):
-        return json.dumps(data_list)
+        return data_list

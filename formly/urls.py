@@ -36,4 +36,5 @@ urlpatterns = [
     url(r"^run/ajax/choice-question/(?P<pk>\d+)/$", run.choice_question, name="choice_question"),
 
     url(r"^results/survey/(?P<pk>\d+)/$", results.survey_results, name="survey_results"),
+    url(r"^results/remap/(?P<pk>\d+)/(?P<answer_string>[\w\W]+)/$", results.RemapView.as_view(), name="survey_results_remap"),
 ]

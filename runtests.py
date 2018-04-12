@@ -90,7 +90,7 @@ def runtests(*test_args):
     try:
         from django.test.runner import DiscoverRunner
         runner_class = DiscoverRunner
-        test_args = ["formly.tests"]
+        test_args = os.environ.get("FORMLY_TEST_ARGS", "formly.tests").split(" ")
     except ImportError:
         from django.test.simple import DjangoTestSuiteRunner
         runner_class = DjangoTestSuiteRunner

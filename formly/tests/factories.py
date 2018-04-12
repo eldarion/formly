@@ -3,10 +3,12 @@ import factory
 from formly.models import (
     Field,
     FieldChoice,
+    FieldResult,
     OrdinalChoice,
     OrdinalScale,
     Page,
     Survey,
+    SurveyResult,
 )
 
 
@@ -36,6 +38,11 @@ class SurveyFactory(factory.django.DjangoModelFactory):
     creator = factory.LazyAttribute(lambda o: o.user)
 
 
+class SurveyResultFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = SurveyResult
+
+
 class PageFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Page
@@ -55,3 +62,8 @@ class FieldChoiceFactory(factory.django.DjangoModelFactory):
         model = FieldChoice
 
     label = factory.Sequence(lambda n: "choice-label-{}".format(n))
+
+
+class FieldResultFactory(factory.django.DjangoModelFactory):
+    class Meta:
+        model = FieldResult

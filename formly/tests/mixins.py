@@ -3,10 +3,12 @@ from test_plus.test import TestCase
 from formly.tests.factories import (
     FieldChoiceFactory,
     FieldFactory,
+    FieldResultFactory,
     OrdinalChoiceFactory,
     OrdinalScaleFactory,
     PageFactory,
     SurveyFactory,
+    SurveyResultFactory,
 )
 
 
@@ -34,6 +36,12 @@ class TestHelperMixin(object):
             kwargs["user"] = self.user
         return SurveyFactory.create(**kwargs)
 
+    def _surveyresult(self, **kwargs):
+        """Create a SurveyResult"""
+        if "user" not in kwargs:
+            kwargs["user"] = self.user
+        return SurveyResultFactory.create(**kwargs)
+
     def _page(self, create=True, **kwargs):
         if "survey" not in kwargs:
             kwargs["survey"] = self.survey
@@ -57,6 +65,15 @@ class TestHelperMixin(object):
             return FieldChoiceFactory.create(**kwargs)
         else:
             return FieldChoiceFactory.build(**kwargs)
+
+    def _fieldresult(self, create=True, **kwargs):
+        """Create a SurveyResult"""
+        if "question" not in kwargs:
+            kwargs["question"] = self.field
+        if create is True:
+            return FieldResultFactory.create(**kwargs)
+        else:
+            return FieldResultFactory.build(**kwargs)
 
 
 class SimpleTests(TestCase, TestHelperMixin):

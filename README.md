@@ -490,6 +490,9 @@ defined in settings.py and ship some sane defaults.
 ### Unreleased
 _TBD_
 
+### 2.0.1
+* Support for Django 3.1
+
 ### 2.0.0
 * Add the ability to remap `MULTIPLE_TEXT` answers
 * Introduce `FORMLY_TEST_ARGS` pattern to run a restricted version of the test suite

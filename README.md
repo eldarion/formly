@@ -50,11 +50,11 @@ Development sponsored by [Midwest Communications](http://mwcradio.com/) and [Mas
 
 #### Supported Django and Python versions
 
-Django \ Python | 2.7 | 3.4 | 3.5 | 3.6
---------------- | --- | --- | --- | ---
-1.11 |  *  |  *  |  *  |  *  
-2.0  |     |  *  |  *  |  *
-3.1  |     |     |     |     |     |  *
+Django \ Python | 2.7 | 3.4 | 3.5 | 3.6 |
+--------------- | --- | --- | --- | --- |
+1.11            |  *  |  *  |  *  |  *  |
+2.0             |     |  *  |  *  |  *  |
+3.1             |     |     |     |  *  |
 
 
 ## Documentation

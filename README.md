@@ -54,7 +54,7 @@ Django \ Python | 2.7 | 3.4 | 3.5 | 3.6
 --------------- | --- | --- | --- | ---
 1.11 |  *  |  *  |  *  |  *  
 2.0  |     |  *  |  *  |  *
-3.1  |     |     |     |    | --- |  *
+3.1  |     |     |     |     |     |  *
 
 
 ## Documentation
@@ -491,7 +491,7 @@ defined in settings.py and ship some sane defaults.
 _TBD_
 
 ### 2.0.1
-* Support for Django 3.1
+* Add support for Django 3.1
 
 ### 2.0.0
 * Add the ability to remap `MULTIPLE_TEXT` answers

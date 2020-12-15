@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 
 class MultiTextWidget(MultiWidget):
     def __init__(self, widgets_length, **kwargs):
-        widgets = (TextInput() for _ in range(widgets_length))
+        widgets = [TextInput() for _ in range(widgets_length)]
         kwargs.update({"widgets": widgets})
         super(MultiTextWidget, self).__init__(**kwargs)
 

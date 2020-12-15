@@ -8,7 +8,12 @@ from django.db.models import Max
 from django.template.defaultfilters import slugify
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.encoding import python_2_unicode_compatible
+try:
+    # Django <= 2.x
+    from django.utils.encoding import python_2_unicode_compatible
+except ImportError:
+    # Django >= 3.x
+    from six import python_2_unicode_compatible
 
 from jsonfield import JSONField
 

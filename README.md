@@ -50,11 +50,10 @@ Development sponsored by [Midwest Communications](http://mwcradio.com/) and [Mas
 
 #### Supported Django and Python versions
 
-Django \ Python | 2.7 | 3.4 | 3.5 | 3.6 |
---------------- | --- | --- | --- | --- |
-1.11            |  *  |  *  |  *  |  *  |
-2.0             |     |  *  |  *  |  *  |
-3.1             |     |     |     |  *  |
+Django \ Python | 3.6
+--------------- | ----
+2.2             | *
+3.1             | *
 
 
 ## Documentation
@@ -490,8 +489,11 @@ defined in settings.py and ship some sane defaults.
 ### Unreleased
 _TBD_
 
-### 2.0.1
+### 3.0.0
 * Add support for Django 3.1
+
+**Backwards Incompatible Changes**
+Drops support for Python 2.x and Django 1.x.
 
 ### 2.0.0
 * Add the ability to remap `MULTIPLE_TEXT` answers

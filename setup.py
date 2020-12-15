@@ -1,6 +1,6 @@
 from setuptools import find_packages, setup
 
-VERSION = "2.0.1-rc1"
+VERSION = "3.0.0"
 LONG_DESCRIPTION = """
 
 ======
@@ -71,18 +71,13 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Framework :: Django",
-        "Framework :: Django :: 1.11",
-        "Framework :: Django :: 2.0",
+        "Framework :: Django :: 2.2",
         "Framework :: Django :: 3.1",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
@@ -90,6 +85,7 @@ setup(
         "django>=1.11",
         "django-appconf>=1.0.2",
         "jsonfield>=2.0.2",
+        "six>=1.15.0"
     ],
     tests_require=[
         "django-bootstrap-form>=3.0.0",
